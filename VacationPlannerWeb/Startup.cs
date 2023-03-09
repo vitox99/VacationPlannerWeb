@@ -10,6 +10,7 @@ using VacationPlannerWeb.DataAccess;
 using VacationPlannerWeb.Models;
 using VacationPlannerWeb.Services;
 
+
 namespace VacationPlannerWeb
 {
     public class Startup
@@ -24,7 +25,8 @@ namespace VacationPlannerWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionSql")));
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddIdentity<User, Role>()
                     .AddEntityFrameworkStores<AppDbContext>()
@@ -107,5 +109,6 @@ namespace VacationPlannerWeb
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+        
     }
 }

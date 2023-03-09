@@ -16,7 +16,5 @@ namespace VacationPlannerWeb.ViewModels
         public string AbsenceType { get; set; }
 
         public int VacationBookingId { get; set; }
-
-
     }
 }
