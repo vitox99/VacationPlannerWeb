@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - VacationPlannerWeb</title>
+    <title>@ViewData["Title"] - Dispečink</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon.ico" />
 
     <environment include="Development">
@@ -27,13 +27,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">VacationPlannerWeb</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Dispečink</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="VacationBookings" asp-action="Index">Vacation Bookings</a></li>
-                    <li><a asp-area="" asp-controller="Calendar" asp-action="MyCalendar">My Calendar</a></li>
-                    <li><a asp-area="" asp-controller="Calendar" asp-action="UserOverview">User Overview</a></li>
+                    @* <li><a asp-area="" asp-controller="VacationBookings" asp-action="Index">Vacation Bookings</a></li> *@
+                    <li><a asp-area="" asp-controller="StrojBookings" asp-action="Index">Kalendář</a></li>
+                    @* <li><a asp-area="" asp-controller="Calendar" asp-action="MyCalendar">My Calendar</a></li>
+                    <li><a asp-area="" asp-controller="Calendar" asp-action="UserOverview">User Overview</a></li> *@
                 </ul>
                 @await Html.PartialAsync("_LoginMenuPartial")
             </div>
@@ -44,9 +45,9 @@
         <hr />
         <footer>
             <p>
-                &copy; @DateTime.Today.Year - Vacation Planner Web | 
-                <a asp-controller="Home" asp-action="About"><b>About</b></a> | 
-                <a asp-controller="Home" asp-action="Contact"><b>Contact</b></a>
+                &copy; @DateTime.Today.Year - vma
+                @* <a asp-controller="Home" asp-action="About"><b>About</b></a> | 
+                <a asp-controller="Home" asp-action="Contact"><b>Contact</b></a> *@
             </p>
         </footer>
     </div>

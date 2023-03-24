@@ -26,7 +26,12 @@ namespace VacationPlannerWeb
         public void ConfigureServices(IServiceCollection services)
         {
             
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionSql")));
+            services.AddDbContext<AppDbContext>(options => 
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionSql"));
+                options.EnableSensitiveDataLogging();
+            });
+            
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddIdentity<User, Role>()
                     .AddEntityFrameworkStores<AppDbContext>()
@@ -92,7 +97,12 @@ namespace VacationPlannerWeb
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+/*
+            using (var scope = 
+            app.ApplicationServices.CreateScope())
+            using (var context = scope.ServiceProvider.GetService<AppDbContext>())
+                context.Database.Migrate();
+*/
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

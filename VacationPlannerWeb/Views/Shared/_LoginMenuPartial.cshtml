@@ -13,10 +13,13 @@
                    class="dropdown-toggle" data-toggle="dropdown">Admin Menu<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li><a asp-area="" asp-controller="Calendar" asp-action="ManagerOverview"><b>Manager Overview</b></a></li>
+                    <li><a asp-area="" asp-controller="StrojCalendar" asp-action="StrojManagerOverview"><b>Přehled kalendáře</b></a></li>
                     <li><a asp-area="" asp-controller="VacationBookings" asp-action="TodoList"><b>Todo List</b></a></li>
                     <li><a asp-area="" asp-controller="WorkFreeDays" asp-action="Index"><b>Work-Free Days</b></a></li>
                     <li><a asp-area="" asp-controller="AbsenceTypes" asp-action="Index"><b>Absence Types</b></a></li>
                     <li><a asp-area="" asp-controller="Account" asp-action="Index"><b>User Accounts</b></a></li>
+                    <li><a id="registerLink" asp-controller="Account" asp-action="Register">Register</a></li>
+                    <li><a asp-area="" asp-controller="Strojs" asp-action="Index"><b>Správa strojů</b></a></li>
                 </ul>
             </li>
         }
@@ -24,12 +27,15 @@
         {
             <li class="dropdown">
                 <a href="#"
-                   class="dropdown-toggle" data-toggle="dropdown">Manager Menu<b class="caret"></b></a>
+                   class="dropdown-toggle" data-toggle="dropdown">Manažer Menu<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    <li><a asp-area="" asp-controller="Calendar" asp-action="ManagerOverview"><b>Manager Overview</b></a></li>
+                    <li><a asp-area="" asp-controller="StrojCalendar" asp-action="StrojManagerOverview"><b>Přehled kalendáře</b></a></li>
+                    <li><a asp-area="" asp-controller="Strojs" asp-action="Index"><b>Správa strojů</b></a></li>
+
+                    @* <li><a asp-area="" asp-controller="Calendar" asp-action="ManagerOverview"><b>Manager Overview</b></a></li>
                     <li><a asp-area="" asp-controller="VacationBookings" asp-action="TodoList"><b>Todo List</b></a></li>
                     <li><a asp-area="" asp-controller="WorkFreeDays" asp-action="Index"><b>Work-Free Days</b></a></li>
-                    <li><a asp-area="" asp-controller="AbsenceTypes" asp-action="Index"><b>Absence Types</b></a></li>
+                    <li><a asp-area="" asp-controller="AbsenceTypes" asp-action="Index"><b>Absence Types</b></a></li> *@
                 </ul>
             </li>
         }
@@ -40,7 +46,7 @@
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li><a id="registerLink" asp-controller="Account" asp-action="Register">Register</a></li>
+        @* <li><a id="registerLink" asp-controller="Account" asp-action="Register">Register</a></li> *@
         <li><a id="loginLink" asp-controller="Account" asp-action="Login">Log in</a></li>
     </ul>
 }

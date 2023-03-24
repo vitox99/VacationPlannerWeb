@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using VacationPlannerWeb.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace VacationPlannerWeb.DataAccess
 {
@@ -23,6 +25,9 @@ namespace VacationPlannerWeb.DataAccess
         public void Initialize()
         {
             _context.Database.EnsureCreated();
+            
+            
+            //_context.Database.Migrate();
 
             if (_context.Users.Any())
             {
@@ -32,6 +37,7 @@ namespace VacationPlannerWeb.DataAccess
             ClearDatabase();
             CreateAdminRole();
             SeedDatabase();
+            StrojSeedDb();
         }
 
         private void CreateAdminRole()
@@ -156,6 +162,47 @@ namespace VacationPlannerWeb.DataAccess
 
             _context.AbsenceTypes.AddRange(abses);
             _context.VacationBookings.AddRange(vacs);
+
+            _context.SaveChanges();
+        }
+
+        private void StrojSeedDb() {
+
+            var team1 = new Team { Name = "StrojTeam1", Shortening = "ST1" };
+            var team2 = new Team { Name = "StrojTeam2", Shortening = "ST2" };
+            var team3 = new Team { Name = "StrojTeam3", Shortening = "ST3" };
+            var teams = new List<Team>()
+            {
+                team1, team2, team3
+            };
+            _context.Teams.AddRange(teams);
+
+            var dep1 = new Department { Name = "Hulin", Shortening = "Hul" };
+            var dep2 = new Department { Name = "Plzeň", Shortening = "Pl" };
+            var dep3 = new Department { Name = "Ostrava", Shortening = "Os" };
+            var deps = new List<Department>()
+            {
+                dep1, dep2, dep3
+            };
+            _context.Departments.AddRange(deps);
+
+            var mistr1 = new StrojMistr { MistrId = "m001", Name = "Novák" };
+            var mistr2 = new StrojMistr { MistrId = "m002", Name = "Stehlík" };
+            var mistrs = new List<StrojMistr>()
+            {
+                mistr1, mistr2
+            };
+            _context.StrojMistrs.AddRange(mistrs);
+            _context.SaveChanges();
+            
+            var stroj1 = new Stroj { InvNr = "S001", Name = "Vagon001", Popis = "Vagon na pohladku koleji", TeamId = team1.Id, DepartmentId = dep3.Id, MistrId = mistr1.Id };
+            var stroj2 = new Stroj { InvNr = "S002", Name = "Vagon002", Popis = "Vagon na převoz koleji", TeamId = team2.Id, DepartmentId = dep1.Id, MistrId = mistr2.Id };
+            var strojs = new List<Stroj>()
+            {
+                stroj1, stroj2
+            };
+
+            _context.Strojs.AddRange(strojs);
 
             _context.SaveChanges();
         }

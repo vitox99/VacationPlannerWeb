@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+//using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -9,8 +10,10 @@ namespace VacationPlannerWeb
 {
     public class Program
     {
+        
         public static void Main(string[] args)
         {
+            
             var host = CreateWebHostBuilder(args);
 
             using (var scope = host.Services.CreateScope())

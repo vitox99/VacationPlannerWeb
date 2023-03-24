@@ -31,6 +31,10 @@ namespace VacationPlannerWeb.DataAccess;
         public DbSet<Team> Teams { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<AbsenceType> AbsenceTypes { get; set; }
+        public DbSet<Stroj> Strojs { get; set; }
+        public DbSet<StrojBooking>StrojBookings {get; set;}
+        public DbSet<StrojDay>StrojDays {get; set;}
+        public DbSet<StrojMistr>StrojMistrs {get; set;}
     }
 /*
     public class YourDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
