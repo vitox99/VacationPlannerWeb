@@ -23,9 +23,11 @@ namespace VacationPlannerWeb.Controllers
         private static readonly CultureInfo _cultureInfo = new CultureInfo("sv-SE");
 
         private const string SessionKeyRoleFilter = "_RoleFilter";
+        private const string SessionKeyStrojnikFilter = "_StrojnikFilter";
         private const string SessionKeyDepartmentFilter = "_DepartmentFilter";
         private const string SessionKeyTeamsFilter = "_TeamFilter";
         private const string NoneRoleId = "#None-Role-Id";
+        private const string NoneStrojnikId = "#None-Strojnik-Id";
         private const string NoneDepartmentId = "#None-Department-Id";
         private const string NoneTeamId = "#None-Team-Id";
 
@@ -83,30 +85,35 @@ namespace VacationPlannerWeb.Controllers
             return View(calendarVM);
         }
 
-        [Authorize(Roles = "Admin,Manager")]
+        //[Authorize(Roles = "Admin,Manager")]
+        [Authorize]
         public async Task<IActionResult> StrojManagerOverview(int year, int weeknumber, string sortOrder)
         {
             PagingLogicAndValidationForYearAndWeekNumber(ref year, ref weeknumber, _cultureInfo);
 
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["StrojnikSortParam"] = sortOrder == "strojnik_desc" ? "strojnik_desc" : "strojnik";
             ViewData["RoleSortParam"] = sortOrder == "role_desc" ? "role_desc" : "role";
-            ViewData["DepartmentSortParam"] = sortOrder == "department_desc" ? "department_desc" : "department";
-            ViewData["TeamSortParam"] = sortOrder == "team_desc" ? "team_desc" : "team";
+            ViewData["DepartmentSortParam"] = sortOrder == "department_desc" ? "department" : "department_desc";
+            ViewData["TeamSortParam"] = sortOrder == "team_desc" ? "team" : "team_desc";
 
             var roleFilter = await GetRoleFilterItems();
+            var strojnikFilter = await GetStrojnikFilterItems();
             var departmentFilter = await GetDepartmentFilterItems();
             var teamFilter = await GetTeamFilterItems();
 
             var roleFilterString = HttpContext.Session.GetString(SessionKeyRoleFilter);
+            var strojnikFilterString = HttpContext.Session.GetString(SessionKeyStrojnikFilter);
             var departmentFilterString = HttpContext.Session.GetString(SessionKeyDepartmentFilter);
             var teamFilterString = HttpContext.Session.GetString(SessionKeyTeamsFilter);
 
             var strojList = await GetAllStrojsWithRoles();
-            strojList = FilterStrojList(roleFilter, departmentFilter, teamFilter, strojList);
+            strojList = FilterStrojList(roleFilter, strojnikFilter, departmentFilter, teamFilter, strojList);
             var sortedUsersList = GetSortedStrojList(sortOrder, strojList);
 
             var absenceTypesList = await _context.AbsenceTypes.Select(x => x.Name).ToListAsync();
+            var absenceTypesListBarva = await _context.AbsenceTypes.ToListAsync();
             var workFreeDaysList = await _context.WorkFreeDays.ToListAsync();
 
             DateTime currentFirstDayInWeek = CalendarHelper.FirstDateOfWeekISO8601(year, weeknumber, _cultureInfo);
@@ -120,20 +127,24 @@ namespace VacationPlannerWeb.Controllers
                 WeekNumber = weeknumber,
                 Date = currentFirstDayInWeek,
                 AbsenceTypes = absenceTypesList,
+                AbsenceTypesBarva = absenceTypesListBarva,
                 AllUsersCalendarData = userCalendarDayDic,
                 CalendarDaysList = caldaysList,
                 SortOrder = sortOrder,
                 RoleFilter = roleFilter,
                 RoleFilterString = roleFilterString,
+                StrojnikFilter = strojnikFilter,
+                StrojnikFilterString = strojnikFilterString,
                 DepartmentFilter = departmentFilter,
                 DepartmentFilterString = departmentFilterString,
                 TeamFilter = teamFilter,
                 TeamFilterString = teamFilterString,
-                PostBackActionName = nameof(StrojManagerOverview)
+                PostBackActionName = nameof(StrojManagerOverview),
+                Barva = "red"
             };
             return View(calendarVM);
         }
-
+/*
         [Authorize]
         public async Task<IActionResult> UserOverview(int year, int weeknumber, string sortOrder)
         {
@@ -154,7 +165,7 @@ namespace VacationPlannerWeb.Controllers
             var teamFilterString = HttpContext.Session.GetString(SessionKeyTeamsFilter);
 
             var userList = await GetAllUsersWithRoles();
-            userList = FilterUserList(roleFilter, departmentFilter, teamFilter, userList);
+            userList = FilterUserList(roleFilter, strojnikFilter, departmentFilter, teamFilter, userList);
             var sortedUsersList = GetSortedUserList(sortOrder, userList);
 
             var absenceTypesList = await _context.AbsenceTypes.Select(x => x.Name).ToListAsync();
@@ -185,7 +196,7 @@ namespace VacationPlannerWeb.Controllers
             };
             return View(calendarVM);
         }
-
+*/
 
         private async Task<List<FilterItem>> GetTeamFilterItems()
         {
@@ -210,19 +221,28 @@ namespace VacationPlannerWeb.Controllers
                 ? AddNoneRolesFilterItem(await GetRolesToCheckBoxItemList()) : roleFilter;
             return roleFilter;
         }
+        private async Task<List<FilterItem>> GetStrojnikFilterItems()
+        {
+            var strojnikFilter = HttpContext.Session.Get<List<FilterItem>>(SessionKeyStrojnikFilter);
+            strojnikFilter = (strojnikFilter == null || strojnikFilter.Count == 0)
+                ? AddNoneStrojniksFilterItem(await GetStrojniksToCheckBoxItemList()) : strojnikFilter;
+            return strojnikFilter;
+        }
 
-        private List<Stroj> FilterStrojList(List<FilterItem> roleFilter, List<FilterItem> departmentFilter, List<FilterItem> teamFilter, List<Stroj> strojList)
+        private List<Stroj> FilterStrojList(List<FilterItem> roleFilter, List<FilterItem> strojnikFilter, List<FilterItem> departmentFilter, List<FilterItem> teamFilter, List<Stroj> strojList)
         {
             //strojList = FilterStrojRoles(strojList, roleFilter);
+            strojList = FilterStrojStrojniks(strojList, strojnikFilter);
             strojList = FilterStrojDepartments(strojList, departmentFilter);
             strojList = FilterStrojTeams(strojList, teamFilter);
             strojList = GetDistinctStrojs(strojList);
             return strojList;
         }
 
-        private List<User> FilterUserList(List<FilterItem> roleFilter, List<FilterItem> departmentFilter, List<FilterItem> teamFilter, List<User> userList)
+        private List<User> FilterUserList(List<FilterItem> roleFilter, List<FilterItem> strojnikFilter, List<FilterItem> departmentFilter, List<FilterItem> teamFilter, List<User> userList)
         {
             userList = FilterUserRoles(userList, roleFilter);
+            userList = FilterUserStrojniks(userList, strojnikFilter);
             userList = FilterUserDepartments(userList, departmentFilter);
             userList = FilterUserTeams(userList, teamFilter);
             userList = GetDistinctUsers(userList);
@@ -273,6 +293,7 @@ namespace VacationPlannerWeb.Controllers
 
                 stroj.Team = await _context.Teams.AsNoTracking().SingleOrDefaultAsync(x => x.Id == stroj.TeamId);
                 stroj.Department = await _context.Departments.AsNoTracking().SingleOrDefaultAsync(x => x.Id == stroj.DepartmentId);
+                stroj.StrojMistr = await _context.StrojMistrs.AsNoTracking().SingleOrDefaultAsync(x => x.Id == stroj.MistrId);
                 strojCalendarDayDic.Add(stroj, allUserCalendarDays);
             }
 
@@ -315,6 +336,18 @@ namespace VacationPlannerWeb.Controllers
             return list;
         }
 
+        private List<FilterItem> AddNoneStrojniksFilterItem(List<FilterItem> list)
+        {
+            list.Add(
+                new FilterItem()
+                {
+                    Id = NoneStrojnikId,
+                    Name = "Žádný strojník",
+                    Selected = true,
+                });
+            return list;
+        }
+
         private async Task<List<User>> GetAllUsersWithRoles()
         {
             var userList = await _context.Users.AsNoTracking().Where(x => !x.IsHidden).ToListAsync();
@@ -344,7 +377,7 @@ namespace VacationPlannerWeb.Controllers
             return strojList;
         }
 
-        private static IEnumerable<User> GetSortedUserList(string sortOrder, IEnumerable<User> userList)
+       /*  private static IEnumerable<User> GetSortedUserList(string sortOrder, IEnumerable<User> userList)
         {
             IEnumerable<User> userOrdered;
             switch (sortOrder)
@@ -376,7 +409,7 @@ namespace VacationPlannerWeb.Controllers
             }
             return userOrdered;
         }
-
+ */
         private static IEnumerable<Stroj> GetSortedStrojList(string sortOrder, IEnumerable<Stroj> strojList)
         {
             IEnumerable<Stroj> userOrdered;
@@ -428,6 +461,7 @@ namespace VacationPlannerWeb.Controllers
             return list;
         }
 
+
         private List<Stroj> FilterStrojRoles(List<Stroj> strojList, List<FilterItem> roleFilterList)
         {
             var list = new List<Stroj>();
@@ -441,6 +475,38 @@ namespace VacationPlannerWeb.Controllers
                         : strojList.Where(u => u.Roles.Any(r => r.Id == roleFilterItem.Id)));
                 }
             }*/
+            return list;
+        }
+
+        private List<User> FilterUserStrojniks(List<User> userList, List<FilterItem> strojnikFilter)
+        {
+            var list = new List<User>();
+            foreach (var stroj in strojnikFilter)
+            {
+                if (stroj.Selected)
+                {
+                    list.AddRange(stroj.Id == NoneStrojnikId
+                        ? userList.Where(x => x.IsHidden == false)
+                            .Where(x => x.MistrId == 0 || x.MistrId == null)
+                        : userList.Where(x => x.DepartmentId?.ToString() == stroj.Id));
+                }
+            }
+            return list;
+        }
+
+        private List<Stroj> FilterStrojStrojniks(List<Stroj> strojList, List<FilterItem> strojnikFilter)
+        {
+            var list = new List<Stroj>();
+            foreach (var stroj in strojnikFilter)
+            {
+                if (stroj.Selected)
+                {
+                    list.AddRange(stroj.Id == NoneStrojnikId
+                        ? strojList.Where(x => x.IsHidden == false)
+                            .Where(x => x.MistrId == 0 || x.MistrId == null)
+                        : strojList.Where(x => x.MistrId.ToString() == stroj.Id));
+                }
+            }
             return list;
         }
 
@@ -520,11 +586,14 @@ namespace VacationPlannerWeb.Controllers
         public async Task<IActionResult> OverviewSetFilter([Bind] StrojCalendarOverviewViewModel model)
         {
             var roleFilter = model.RoleFilter;
+            var strojnikFilter = model.StrojnikFilter;
             var departmentFilter = model.DepartmentFilter;
             var teamFilter = model.TeamFilter;
 
             roleFilter = (roleFilter == null || roleFilter.Count == 0)
                 ? AddNoneRolesFilterItem(await GetRolesToCheckBoxItemList()) : roleFilter;
+            strojnikFilter = (strojnikFilter == null || strojnikFilter.Count == 0)
+                ? AddNoneStrojniksFilterItem(await GetStrojniksToCheckBoxItemList()) : strojnikFilter;
             departmentFilter = (departmentFilter == null || departmentFilter.Count == 0)
                 ? AddNoneDepartmentFilterItem(await GetDepartmentsToCheckBoxItemList()) : departmentFilter;
             teamFilter = (teamFilter == null || teamFilter.Count == 0)
@@ -538,6 +607,7 @@ namespace VacationPlannerWeb.Controllers
             };
 
             HttpContext.Session.Set(SessionKeyRoleFilter, roleFilter);
+            HttpContext.Session.Set(SessionKeyStrojnikFilter, strojnikFilter);
             HttpContext.Session.Set(SessionKeyDepartmentFilter, departmentFilter);
             HttpContext.Session.Set(SessionKeyTeamsFilter, teamFilter);
             return RedirectToAction(model.PostBackActionName, calendarVM);
@@ -568,6 +638,11 @@ namespace VacationPlannerWeb.Controllers
         {
             return await _context.Roles.Where(x => x.Name != "Admin" && x.Name != "Manager")
                 .Select(x => new FilterItem { Id = x.Id, Name = $"{x.Name} - {x.Shortening}", Selected = true }).ToListAsync();
+        }
+
+        private async Task<List<FilterItem>> GetStrojniksToCheckBoxItemList()
+        {
+            return await _context.StrojMistrs.Select(x => new FilterItem { Id = x.Id.ToString(), Name = $"{x.LastName} {x.Name}", Selected = true }).ToListAsync();
         }
 
         private async Task<List<FilterItem>> GetDepartmentsToCheckBoxItemList()
@@ -620,6 +695,10 @@ namespace VacationPlannerWeb.Controllers
         {
             string approval = null;
             string absenceType = null;
+            string absenceColor = null;
+            string absenceSmer = null;
+            string absenceStrojnik = null;
+            //string nazevZakazky = null;
             bool isPlanned = false;
             var vacationBookingId = 0;
             bool isHoliday = false;
@@ -631,6 +710,11 @@ namespace VacationPlannerWeb.Controllers
                 var vacbooking = dataLists.VacBookingList.FirstOrDefault(v => v.Id == vacBookingId);
                 approval = vacbooking.Approval;
                 absenceType = vacbooking.AbsenceType?.Name;
+                absenceColor = vacbooking.AbsenceType?.Color;
+                //nazevZakazky = vacbooking.AbsenceType.
+                //absenceSmer = vacbooking.AbsenceType?.SmerPrace;
+                absenceSmer = vacbooking.SmerPrace;
+                absenceStrojnik = vacbooking.StrojMistr.Alias;
                 isPlanned = true;
                 
                 vacationBookingId = vacBookingId;
@@ -645,6 +729,9 @@ namespace VacationPlannerWeb.Controllers
             {
                 Approval = approval,
                 AbsenceType = absenceType,
+                AbsenceColor = absenceColor,
+                AbsenceSmer = absenceSmer,
+                AbsenceStrojnik = absenceStrojnik,
                 IsPlannedVacation = isPlanned,
                 StrojBookingId = vacationBookingId,
                 IsHoliday = isHoliday,
@@ -661,6 +748,9 @@ namespace VacationPlannerWeb.Controllers
         {
             string approval = null;
             string absenceType = null;
+            string absenceColor = null;
+            string absenceSmer = null;
+            //string absenceStrojnik = null;
             bool isPlanned = false;
             var vacationBookingId = 0;
             bool isHoliday = false;
@@ -670,6 +760,9 @@ namespace VacationPlannerWeb.Controllers
             {
                 Approval = approval,
                 AbsenceType = absenceType,
+                AbsenceColor = absenceColor,
+                AbsenceSmer = absenceSmer,
+                //AbsenceStrojnik = absenceStrojnik,
                 IsPlannedVacation = isPlanned,
                 StrojBookingId = vacationBookingId,
                 IsHoliday = isHoliday,
@@ -747,7 +840,7 @@ namespace VacationPlannerWeb.Controllers
             else
             {
                 return await _context.StrojBookings.AsNoTracking()
-                .Include(v => v.Stroj).Include(v => v.VacationDays).Include(v => v.AbsenceType)
+                .Include(v => v.Stroj).Include(v => v.VacationDays).Include(v => v.AbsenceType).Include(v => v.StrojMistr)
                 .Where(x => x.StrojId.Equals(strojId)).ToListAsync();
             }
 

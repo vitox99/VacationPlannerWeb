@@ -7,7 +7,10 @@
 <h2>Události v kalendáři</h2>
 
 <p>
-    <a class="btn btn-primary" asp-action="Create">Vytvořit nový</a>
+    @if(User.IsInRole("Admin")||User.IsInRole("Manager")||User.IsInRole("Writer"))
+        {
+            <a class="btn btn-primary" asp-action="Create">Vytvořit novou událost</a>
+        }
 </p>
 <table class="table" id="vacbooking-table">
     <thead>
@@ -24,8 +27,14 @@
             <th>
                 <a>@Html.DisplayNameFor(model => model.AbsenceType) <b class="caret"></b></a>
             </th>
-            <th>
+            @* <th>
                 <a>@Html.DisplayNameFor(model => model.Approval) <b class="caret"></b></a>
+            </th> *@
+            <th>
+                <a>@Html.DisplayNameFor(model => model.SmerPrace) <b class="caret"></b></a>
+            </th>
+            <th>
+                <a>@Html.DisplayNameFor(model => model.StrojMistr) <b class="caret"></b></a>
             </th>
             <th>
                 <a>@Html.DisplayNameFor(model => model.Comment) <b class="caret"></b></a>
@@ -52,8 +61,14 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.AbsenceType.Name)
                 </td>
-                <td>
+                @* <td>
                     @Html.DisplayFor(modelItem => item.Approval)
+                </td> *@
+                <td>
+                    @Html.DisplayFor(modelItem => item.SmerPrace)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StrojMistr.Alias)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Comment)
@@ -62,15 +77,20 @@
                     @Html.DisplayFor(modelItem => item.User.DisplayName)
                 </td>
                 <td>
-                    <a class="btn btn-default btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a class="btn btn-default btn-sm" asp-action="Details" asp-route-id="@item.Id">Detail</a> |
-                    <a class="btn btn-default btn-sm" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">Upravit</a> |
+                    <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id">Detail</a> |
+                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Smazat</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
+<div>
+    <a class="btn btn-primary" asp-controller="StrojCalendar" asp-action="StrojManagerOverview">Zpět na přehled kalendáře</a>
+</div>
+
 @section Scripts {
     <script src="~/js/TableSorting.js"></script>
+    <script src="~/js/CalendarOverviewMargin.js"></script>
 }

@@ -1,5 +1,4 @@
 ﻿@inject RolesService RolesService
-
 @model StrojCalendarOverviewViewModel
 
 @{
@@ -19,10 +18,17 @@
 
 @await Html.PartialAsync("_WeekPaginationPartial_Stroj", Model, ViewData)
 
+@* @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer"))
+{
+
+}
+else {var role = "cteni";} *@
+
 <table class="table calendar-overview-table">
     <thead>
         <tr>
-            <th>Week</th>
+            
+            <th>Týden</th>
             <th></th>
             <th></th>
             <th></th>
@@ -36,26 +42,26 @@
         </tr>
         <tr>
             <th>
-                <a asp-action="ManagerOverview" asp-route-sortOrder="@ViewData["NameSortParm"]"
-                   asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber"><b>User</b></a>
+                <a class="text-primary text-decoration-none" asp-action="StrojManagerOverview" asp-route-sortOrder="@ViewData["NameSortParm"]"
+                   asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber">Stroj</a>
             </th>
            @*  <th>
                 <a asp-action="ManagerOverview" asp-route-sortOrder="@ViewData["RoleSortParam"]"
                    asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber"><b>Role</b></a>
             </th> *@
             <th>
-                <a asp-action="ManagerOverview" asp-route-sortOrder="@ViewData["DepartmentSortParam"]"
-                   asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber"><b>Department</b></a>
+                <a class="text-primary text-decoration-none" asp-action="StrojManagerOverview" asp-route-sortOrder="@ViewData["DepartmentSortParam"]"
+                   asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber">Oddělení</a>
             </th>
             <th>
-                <a asp-action="ManagerOverview" asp-route-sortOrder="@ViewData["TeamSortParam"]"
-                   asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber"><b>Team</b></a>
+                <a class="text-primary text-decoration-none" asp-action="StrojManagerOverview" asp-route-sortOrder="@ViewData["TeamSortParam"]"
+                   asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber">Skupina strojů</a>
             </th>
             @foreach (var day in Model.CalendarDaysList)
             {
                 if (day.IsToday)
                 {
-                    <th style="text-align: center; color: mediumblue">@day.Date.ToString("dd")</th>
+                    <th style="text-align: center; color: rgb(0, 0, 255); font-weight: bold;">@day.Date.ToString("dd")</th>
                 }
                 else
                 {
@@ -68,10 +74,21 @@
         @{ var count = 0; }
         @foreach (var user in Model.AllUsersCalendarData.Keys)
         {
-            var cls1 = (count % 2 != 0) ? "table-row-gray " : "";
+            //background-color: #f1f1f1;
+            //var cls1 = (count % 2 != 0) ? "table-row-gray " : "";
+            //var cls1 = (count % 2 != 0) ? "grey " : "";
+            var sedyRadek = (count % 2 != 0) ? "tabulka-radek-sedy" : "";
+            var barvaStroje = sedyRadek;
+            @if(user.StrojColor == "#ffffff"){barvaStroje = "#f1f1f1";}
+            else {barvaStroje = user.StrojColor;}
+            
             <tr>
-                <td class="@cls1">
-                    <b>@user.Name</b>
+                @* <td id="@sedyRadek"> *@
+                <td id="@barvaStroje" style="background-color: @barvaStroje">
+                    <b>@user.Name</b><br>
+                    @if(user.StrojMistr == null)
+                    {<p>nepřiřazen</p>}
+                    else {@user.StrojMistr.Name @user.StrojMistr.LastName}
                 </td>
 
                 @* <td class="@cls1">
@@ -79,35 +96,55 @@
                     <b>@string.Join(",", userRoles)</b>
                 </td> *@
 
-                <td class="@cls1">
+                <td title="@user.Department?.Name" id="@sedyRadek">
                     <b>@user.Department?.Shortening</b>
                 </td>
-                <td class="@cls1">
+                <td title="@user.Team?.Name" id="@sedyRadek">
                     <b>@user.Team?.Shortening</b>
                 </td>
                 @foreach (var calday in Model.AllUsersCalendarData[user])
                 {
+                    var prazdnyDen = "";
                     var cls2 = "calendar-box ";
                     var action = "";
+                    var barva = "white";
+                    var smerPrace = "dopředu";
+                    var nazevZakazky = "nazev zakazky";
+                    var strojnik = "strojnik";
+                    //var barva = (Model.AbsenceTypesBarva == calday.AbsenceType);
+                    //var barva = calday.AbsenceType == AbsenceType.Equals()
+                    //calday.AbsenceType;
                     if (calday.IsToday)
                     {
                         cls2 += "today ";
                     }
+                    
                     if (calday.IsWeekend)
                     {
-                        cls2 += "weekend ";
+                        prazdnyDen = "weekend";
                     }
+                    else prazdnyDen = sedyRadek;
+                    
                     if (calday.IsHoliday)
                     {
                         cls2 += "holiday ";
                     }
-                    if (Model.AbsenceTypes != null)
+                     @* if (Model.AbsenceTypes != null)
                     {
                         for (int i = 0; i < Model.AbsenceTypes.Count; i++)
                         {
                             cls2 += (Model.AbsenceTypes[i] == calday.AbsenceType) ? $"absence-color-{i} " : "";
+                            cls2 += (Model.AbsenceTypes[i] == calday.AbsenceType) ? $"absence-color-{i} " : "";
                         }
-                    }
+                    }  *@
+                    if (Model.AbsenceTypes != null)
+                    {
+                      barva = calday.AbsenceColor;
+                      smerPrace = calday.AbsenceSmer;
+                      nazevZakazky = calday.AbsenceType;
+                      strojnik = calday.AbsenceStrojnik;
+                      //nazevZakazky = "";
+                    } 
                     if (calday.IsPlannedVacation)
                     {
                         cls2 += "planned-vacation ";
@@ -117,34 +154,96 @@
                         cls2 += "start-week ";
                     }
                     action = (calday.StrojBookingId == 0) ? "" : "Edit";
-                    cls2 += cls1;
+                    //cls2 += cls1;
+                    
+                    //cls2 += barva;
 
-                    if (calday.IsHoliday)
+@*                     if (calday.IsHoliday)
                     {
-                        <td class="@cls2">
+                        <td class="@cls2" style="background-color: @barva;">
                             <a class="btn btn-block btn-sm" asp-controller="WorkFreeDays" asp-action="DetailsByDate" asp-route-date="@calday.Date">
                                 <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
                             </a>
                         </td>
-                    }
-                    else if (action == "Edit")
+                    } *@
+                    if (action == "Edit")
                     {
-                        <td class="@cls2">
-                            <a class="btn btn-block btn-sm" asp-controller="StrojBookings" asp-action="Edit" asp-route-id="@calday.StrojBookingId">
-                                @if (calday.Approval == ApprovalState.Approved.ToString())
-                                {<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>}
-                                else if (calday.Approval == ApprovalState.Denied.ToString())
-                                {<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>}
-                                else if (calday.Approval == ApprovalState.Pending.ToString())
-                                {<span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>}
-                            </a>
+                        <td id="calendar-box-vma" class="@cls2" style="background-color: @barva;">
+                            @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer")){
+@*                             <div class="hover-text"> *@
+                                <a id="calendar-box-button-vma" title="" class="btn btn-block hover-text" 
+                                asp-controller="StrojBookings" asp-action="Edit" 
+                                asp-route-id="@calday.StrojBookingId">
+                                    @* @if (calday.Approval == ApprovalState.Approved.ToString())
+                                    {<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>}
+                                    else if (calday.Approval == ApprovalState.Denied.ToString())
+                                    {<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>}
+                                    else if (calday.Approval == ApprovalState.Pending.ToString())
+                                    {<span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>} *@
+                                    @smerPrace
+                                     <span class="tooltip-text" id="delay">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    zakázka: 
+                                                </div>
+                                                <div class="col-8">
+                                                    @nazevZakazky
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    strojník: 
+                                                </div>
+                                                <div class="col-8">
+                                                    @strojnik
+                                                </div>
+                                            </div>
+                                        </div>   
+                                    </span>
+                                </a>
+                            @* </div>  *@
+                            }
+                            else {
+                                @* <div class="hover-text"> *@
+                                    <a id="calendar-box-button-vma" title="@nazevZakazky" class="btn btn-block"
+                                    asp-controller="StrojBookings" asp-action="Details" 
+                                    asp-route-id="@calday.StrojBookingId">
+                                        @smerPrace
+@*                                         <span class="tooltip-text" id="delay">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        zakázka: 
+                                                    </div>
+                                                    <div class="col-8">
+                                                        @nazevZakazky
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        strojník: 
+                                                    </div>
+                                                    <div class="col-8">
+                                                        @strojnik
+                                                    </div>
+                                                </div>
+                                            </div>   
+                                        </span> *@
+                                    </a>
+                                @* </div> *@ 
+                            }
                         </td>
                     }
                     else if (action == "")
                     {
-                        <td class="@cls2"></td>
+                        <td id="@prazdnyDen" class="@cls2">
+                            @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer")){
+                            <a class="btn btn-block btn-sm" asp-controller="StrojBookings" asp-action="Create" 
+                            asp-route-date="@calday.Date" asp-route-id="@user.Id">-</a>}
+                            else {<a class="btn btn-block btn-sm">-</a>}
+                        </td>
                     }
-
                 }
             </tr>
             count++;
@@ -152,7 +251,8 @@
     </tbody>
 </table>
 
-@await Html.PartialAsync("_BookingExplainationPartial")
+
+@* @await Html.PartialAsync("_BookingExplainationPartial") *@
 
 @section Scripts {
     <script src="~/js/UserRoleFilter.js"></script>

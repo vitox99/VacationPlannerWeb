@@ -4,7 +4,7 @@
     ViewData["Title"] = "Edit";
 }
 
-<h2>Edit</h2>
+<h2>Upravit</h2>
 
 <h4>Správa strojů</h4>
 <hr />
@@ -13,43 +13,52 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+
+            <label asp-for="InvNr" class="control-label"></label>
+            <input asp-for="InvNr" class="form-control" />
+            <span asp-validation-for="InvNr" class="text-danger"></span>
+
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+
+            <label asp-for="Popis" class="control-label"></label>
+            <input asp-for="Popis" class="form-control" />
+            <span asp-validation-for="Popis" class="text-danger"></span>
+
+            <label asp-for="TeamId" class="control-label"></label>
+            <select asp-for="TeamId" class="form-control" asp-items="ViewBag.TeamId"></select>
+            <span asp-validation-for="TeamId" class="text-danger"></span>
+
+            <label asp-for="DepartmentId" class="control-label"></label>
+            <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+            <span asp-validation-for="DepartmentId" class="text-danger"></span>
             
-                <label asp-for="InvNr" class="control-label"></label>
-                <input asp-for="InvNr" class="form-control" />
-                <span asp-validation-for="InvNr" class="text-danger"></span> 
+            <div class="form-check">
+                <label asp-for="IsHidden" class="form-check-label" for="flexCheckDefault"></label>
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" asp-for="IsHidden" />
+                <span asp-validation-for="IsHidden" class="text-danger"></span>
+            </div>
+            
+            <label asp-for="MistrId" class="control-label"></label>
+            <select asp-for="MistrId" class="form-control" asp-items="ViewBag.MistrId"></select>
+            <span asp-validation-for="MistrId" class="text-danger"></span>
 
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div>
+                <label asp-for="StrojColor" class="form-label">Výběr barvy</label>
+                <input asp-for="StrojColor" type="color" class="form-control form-control-color" asp-value="#000000" title="Vyberte barvu">
+                <span asp-validation-for="StrojColor" class="text-danger"></span>
+            </div>
 
-                <label asp-for="Popis" class="control-label"></label>
-                <input asp-for="Popis" class="form-control" />
-                <span asp-validation-for="Popis" class="text-danger"></span> 
-                                
-                <label asp-for="TeamId" class="control-label"></label>
-                <select asp-for="TeamId" class="form-control" asp-items="ViewBag.TeamId"></select>
-                <span asp-validation-for="TeamId" class="text-danger"></span>
-                
-                <label asp-for="DepartmentId" class="control-label"></label>
-                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
-                <span asp-validation-for="DepartmentId" class="text-danger"></span> 
-                
-                <label asp-for="IsHidden" class="control-label"></label>
-                <input asp-for="IsHidden" class="form-control" />
-                <span asp-validation-for="IsHidden" class="text-danger"></span> 
-                
-                <label asp-for="MistrId" class="control-label"></label>
-                <select asp-for="MistrId" class="form-control" asp-items="ViewBag.MistrId"></select>
-                <span asp-validation-for="MistrId" class="text-danger"></span>
             <br>
             <div class="form-group">
-                <input type="submit" value="Uložit" class="btn btn-default" />
+                <input type="submit" value="Uložit" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Zpět na přehled</a>
+    <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
 </div>
 

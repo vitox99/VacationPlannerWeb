@@ -15,7 +15,7 @@
             @Html.DisplayNameFor(model => model.Stroj)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.StrojId)
+            @Html.DisplayFor(model => model.Stroj.Name)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.FromDate)
@@ -35,11 +35,23 @@
         <dd>
             @Html.DisplayFor(model => model.AbsenceType.Name)
         </dd>
-        <dt>
+@*         <dt>
             @Html.DisplayNameFor(model => model.Approval)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Approval)
+        </dd> *@
+        <dt>
+            @Html.DisplayNameFor(model => model.SmerPrace)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SmerPrace)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.StrojMistr)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.StrojMistr.Alias)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Comment)
@@ -65,7 +77,7 @@
     </dl>
 </div>
 <div>
-    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a class="btn btn-default" asp-action="Index">Zpět na přehled</a> |
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Upravit</a> |
+    <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
     @* <a class="btn btn-default" asp-controller="Calendar" asp-action="MyCalendar">Back to My Calendar</a> *@
 </div>

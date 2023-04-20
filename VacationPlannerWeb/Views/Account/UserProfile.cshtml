@@ -55,7 +55,7 @@
             @{ var userRoles = await userManager.GetRolesAsync(Model); }
             @string.Join(", ", userRoles)
         </dd>
-        <dt>
+        @*<dt>
             Your Manager
         </dt>
         <dd>
@@ -72,11 +72,15 @@
         </dt>
         <dd>
             You have booked <b>@ViewData["VacationDaysCount"]</b> Vacation Days during @ViewData["VacationDaysCountPeriod"]
-        </dd>
+        </dd> *@
     </dl>
 </div>
 
 <div>
-    <a class="btn btn-default btn-info" asp-action="Edit" asp-route-id="@Model.Id">Edit Profile</a> |
-    <a class="btn btn-default" asp-action="ListAll">List All Users</a>
+    @if(User.IsInRole("Admin") || User.IsInRole("Manager"))
+    {
+    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Upravit profil</a>
+    
+    <a class="btn btn-info" asp-action="ListAll">Zobrazit všechny uživatele</a>
+    }
 </div>

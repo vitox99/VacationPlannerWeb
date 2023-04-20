@@ -1,0 +1,48 @@
+﻿@model StrojMistr
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Detail</h2>
+
+<div>
+    <h4>Strojvedoucí</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.MistrId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MistrId)
+        </dd>
+                <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+                <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+                <dt>
+            @Html.DisplayNameFor(model => model.Telefon)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Telefon)
+        </dd>
+                <dt>
+            @Html.DisplayNameFor(model => model.Color)
+        </dt>
+        <dd style="background-color: @Html.DisplayFor(modelItem => modelItem.Color);">
+            @Html.DisplayFor(model => model.Color)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Upravit</a> |
+    <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+</div>

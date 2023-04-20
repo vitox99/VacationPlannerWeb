@@ -76,53 +76,72 @@ namespace VacationPlannerWeb.DataAccess
 
         private void SeedDatabase()
         {
+//vytvoření nultého teamu
+            var team0 = new Team { Name = "nepřiřazeno", Shortening = "N/A"};
+/*             
             var team1 = new Team { Name = "Pandas", Shortening = "Pand" };
             var team2 = new Team { Name = "Tigers", Shortening = "Tigr" };
             var team3 = new Team { Name = "Rabbits", Shortening = "Rabt" };
-
+ */
             var teams = new List<Team>()
             {
-                team1, team2, team3
+                team0//team1, team2, team3
             };
-
             _context.Teams.AddRange(teams);
 
-            var dep1 = new Department { Name = "Developer", Shortening = "Dev" };
-            var dep2 = new Department { Name = "Economy", Shortening = "Eco" };
-            var dep3 = new Department { Name = "Support", Shortening = "Sup" };
-
+//vytvoření nultého oddělení
+            var dep0 = new Department { Name = "nepřiřazeno", Shortening = "N/A" };
             var deps = new List<Department>()
             {
-                dep1, dep2, dep3
+                dep0//dep1, dep2, dep3
             };
-
             _context.Departments.AddRange(deps);
+
+//vytvoření nultého strojníka
+            var strojMistr = new StrojMistr { MistrId = "0", Color = "#ffffff", Alias = "nepřiřazeno"};
+            _context.StrojMistrs.AddRange(strojMistr);
+
+//vytvoření nultého zákazníka            
+            var zak0 = new Zakaznik { Nazev = "Zákazník0", IC = "12345678" , Tel = "+420737737737", Email = "zakaznik@zakaznik.cz", Poznamka = "Poznámka" };
+            var zakaznici = new List<Zakaznik>()
+            {
+                zak0
+            };
+            _context.Zakaznici.AddRange(zakaznici);
+
 
             bool roleExists = _roleManager.RoleExistsAsync("Manager").Result;
             if (!roleExists)
             {
-                var managerRole = new Role()
+                var managerRole = new Role() {Name = "Manager",Shortening = "Mangr"};
+                var writerRole = new Role() {Name = "Writer", Shortening = "Wr"};
+                var readerRole = new Role() {Name = "Reader", Shortening = "Rd"};
+
+                var roles = new List<Role>() {managerRole, writerRole, readerRole};
+
+                foreach(var role in roles)
                 {
-                    Name = "Manager",
-                    Shortening = "Mangr"
-                };
-                _roleManager.CreateAsync(managerRole).Wait();
+                    _roleManager.CreateAsync(role).Wait();
+                }
+                //_roleManager.CreateAsync(managerRole).Wait();
             }
 
             const string userPassword = "Password123";
 
-            var managerUser = new User { UserName = "manager@gmail.com", Email = "manager@gmail.com", FirstName = "Mike", LastName = "Manager", DisplayName = "Mike Manager", TeamId = team3.Id, DepartmentId = dep2.Id, };
+            var managerUser = new User { UserName = "manager@gmail.com", Email = "manager@gmail.com", FirstName = "Mike", LastName = "Manager", DisplayName = "Mike Manager", TeamId = team0.Id, DepartmentId = dep0.Id, };
             _userManager.CreateAsync(managerUser, userPassword).Wait();
 
-            var user1 = new User { UserName = "user1@gmail.com", Email = "user1@gmail.com", FirstName = "Pelle", LastName = "Svantesson", DisplayName = "Pelle Svantesson", TeamId = team1.Id, DepartmentId = dep3.Id, ManagerUserId = managerUser.Id };
+            var user0 = new User { UserName = "spacil@tssas.cz", Email = "spacil@tssas.cz", FirstName = "Petr", LastName = "Spáčil", DisplayName = "Petr Spáčil", TeamId = team0.Id, DepartmentId = dep0.Id, ManagerUserId = managerUser.Id };
+
+            /* var user1 = new User { UserName = "user1@gmail.com", Email = "user1@gmail.com", FirstName = "Pelle", LastName = "Svantesson", DisplayName = "Pelle Svantesson", TeamId = team1.Id, DepartmentId = dep3.Id, ManagerUserId = managerUser.Id };
             var user2 = new User { UserName = "user2@gmail.com", Email = "user2@gmail.com", FirstName = "Thom", LastName = "Ivarsson", DisplayName = "Thom Ivarsson", TeamId = team2.Id, DepartmentId = dep2.Id, ManagerUserId = managerUser.Id };
             var user3 = new User { UserName = "user3@gmail.com", Email = "user3@gmail.com", FirstName = "Britta", LastName = "Johnsson", DisplayName = "Britta Johnsson", TeamId = team3.Id, DepartmentId = dep1.Id };
             var user4 = new User { UserName = "user4@gmail.com", Email = "user4@gmail.com", FirstName = "Einar", LastName = "Andersson", DisplayName = "Einar Andersson", TeamId = team1.Id, DepartmentId = dep2.Id, ManagerUserId = managerUser.Id };
-            var user5 = new User { UserName = "user5@gmail.com", Email = "user5@gmail.com", FirstName = "Sarah", LastName = "Qvistsson", DisplayName = "Sarah Qvistsson", TeamId = team2.Id, DepartmentId = dep3.Id, ManagerUserId = managerUser.Id };
+            var user5 = new User { UserName = "user5@gmail.com", Email = "user5@gmail.com", FirstName = "Sarah", LastName = "Qvistsson", DisplayName = "Sarah Qvistsson", TeamId = team2.Id, DepartmentId = dep3.Id, ManagerUserId = managerUser.Id }; */
 
             var users = new List<User>()
             {
-                user1, user2, user3, user4, user5
+                user0//, user1, user2, user3, user4, user5
             };
 
             foreach (var user in users)
@@ -130,16 +149,20 @@ namespace VacationPlannerWeb.DataAccess
                 _userManager.CreateAsync(user, userPassword).Wait();
             }
 
-            var abs1 = new AbsenceType { Name = "Vacation" };
+            var abs0 = new Zakazka { CisloZakazky = "Zak001", ZakaznikId = zak0.Id, Name = "Název zakázky", Color = "#a8ffe2", SmerPrace = "kupředu", Poznamka = "Poznámka"};
+            /* var abs1 = new AbsenceType { Name = "Vacation" };
             var abs2 = new AbsenceType { Name = "Leave" };
-            var abs3 = new AbsenceType { Name = "Away" };
+            var abs3 = new AbsenceType { Name = "Away" }; */
 
-            var abses = new List<AbsenceType>()
+            var abses = new List<Zakazka>()
             {
-                abs1, abs2, abs3
+                abs0//abs1, abs2, abs3
             };
 
-            var vac1 = new VacationBooking { Comment = "Trip to Paris", Approval = ApprovalState.Pending.ToString(), FromDate = DateTime.Now.Date.AddDays(-3), ToDate = DateTime.Now.Date.AddDays(3), User = user1, AbsenceType = abs1 };
+            _context.AbsenceTypes.AddRange(abses);
+
+            var vac0 = new StrojBooking { Comment = "Poznámka", Approval = ApprovalState.Pending.ToString(), FromDate = DateTime.Now.Date.AddDays(-3), ToDate = DateTime.Now.Date.AddDays(3), User = user0, AbsenceType = abs0 };
+/*          var vac1 = new VacationBooking { Comment = "Trip to Paris", Approval = ApprovalState.Pending.ToString(), FromDate = DateTime.Now.Date.AddDays(-3), ToDate = DateTime.Now.Date.AddDays(3), User = user1, AbsenceType = abs1 };
             var vac2 = new VacationBooking { Comment = "Away from home", Approval = ApprovalState.Pending.ToString(), FromDate = DateTime.Now.Date.AddDays(10), ToDate = DateTime.Now.Date.AddDays(12), User = user1, AbsenceType = abs3 };
             var vac3 = new VacationBooking { Comment = "Party day", Approval = ApprovalState.Approved.ToString(), FromDate = DateTime.Now.Date.AddDays(15), ToDate = DateTime.Now.Date.AddDays(17), User = user1, AbsenceType = abs1 };
             var vac4 = new VacationBooking { Comment = "Going to Hawaii", Approval = ApprovalState.Pending.ToString(), FromDate = DateTime.Now.Date.AddDays(8), ToDate = DateTime.Now.Date.AddDays(16), User = user2, AbsenceType = abs1 };
@@ -149,19 +172,21 @@ namespace VacationPlannerWeb.DataAccess
             var vac8 = new VacationBooking { Comment = "Road trip", Approval = ApprovalState.Denied.ToString(), FromDate = DateTime.Now.Date.AddDays(5), ToDate = DateTime.Now.Date.AddDays(20), User = user4, AbsenceType = abs2 };
             var vac9 = new VacationBooking { Comment = "Kentucky", Approval = ApprovalState.Pending.ToString(), FromDate = DateTime.Now.Date.AddDays(20), ToDate = DateTime.Now.Date.AddDays(25), User = user5, AbsenceType = abs3 };
             var vac10 = new VacationBooking { Comment = "Far away", Approval = ApprovalState.Approved.ToString(), FromDate = DateTime.Now.Date.AddDays(-8), ToDate = DateTime.Now.Date.AddDays(-2), User = user5, AbsenceType = abs1 };
-
-            var vacs = new List<VacationBooking>()
+ */
+            var vacs = new List<StrojBooking>()
             {
-                vac1, vac2, vac3, vac4, vac5, vac6, vac7, vac8, vac9, vac10
+                vac0//vac1, vac2, vac3, vac4, vac5, vac6, vac7, vac8, vac9, vac10
             };
 
             foreach (var vac in vacs)
             {
-                vac.VacationDays = GetVacationDayFromBookings(vac);
+                //vac.VacationDays = GetVacationDayFromBookings(vac);
+                vac.VacationDays = GetStrojDayFromBookings(vac);
+                
             }
 
-            _context.AbsenceTypes.AddRange(abses);
-            _context.VacationBookings.AddRange(vacs);
+            //_context.AbsenceTypes.AddRange(abses);
+            _context.StrojBookings.AddRange(vacs);
 
             _context.SaveChanges();
         }
@@ -177,7 +202,7 @@ namespace VacationPlannerWeb.DataAccess
             };
             _context.Teams.AddRange(teams);
 
-            var dep1 = new Department { Name = "Hulin", Shortening = "Hul" };
+            var dep1 = new Department { Name = "Louny", Shortening = "Ln" };
             var dep2 = new Department { Name = "Plzeň", Shortening = "Pl" };
             var dep3 = new Department { Name = "Ostrava", Shortening = "Os" };
             var deps = new List<Department>()
@@ -186,8 +211,8 @@ namespace VacationPlannerWeb.DataAccess
             };
             _context.Departments.AddRange(deps);
 
-            var mistr1 = new StrojMistr { MistrId = "m001", Name = "Novák" };
-            var mistr2 = new StrojMistr { MistrId = "m002", Name = "Stehlík" };
+            var mistr1 = new StrojMistr { MistrId = "m001", Name = "Pepe", LastName = "Novák", Telefon = "+420737373737", Alias = "Novák Pepe" };
+            var mistr2 = new StrojMistr { MistrId = "m002", Name = "Jiřík", LastName = "Novák", Telefon = "+420737373737", Alias = "Novák Jiřík" };
             var mistrs = new List<StrojMistr>()
             {
                 mistr1, mistr2
@@ -195,8 +220,8 @@ namespace VacationPlannerWeb.DataAccess
             _context.StrojMistrs.AddRange(mistrs);
             _context.SaveChanges();
             
-            var stroj1 = new Stroj { InvNr = "S001", Name = "Vagon001", Popis = "Vagon na pohladku koleji", TeamId = team1.Id, DepartmentId = dep3.Id, MistrId = mistr1.Id };
-            var stroj2 = new Stroj { InvNr = "S002", Name = "Vagon002", Popis = "Vagon na převoz koleji", TeamId = team2.Id, DepartmentId = dep1.Id, MistrId = mistr2.Id };
+            var stroj1 = new Stroj { InvNr = "S001", Name = "Vagon001", Popis = "Vagon na pohladku koleji", TeamId = team1.Id, DepartmentId = dep3.Id, MistrId = mistr1.Id, StrojColor = "red" };
+            var stroj2 = new Stroj { InvNr = "S002", Name = "Vagon002", Popis = "Vagon na převoz koleji", TeamId = team2.Id, DepartmentId = dep1.Id, MistrId = mistr2.Id, StrojColor = "blue" };
             var strojs = new List<Stroj>()
             {
                 stroj1, stroj2
@@ -207,7 +232,27 @@ namespace VacationPlannerWeb.DataAccess
             _context.SaveChanges();
         }
 
-        public List<VacationDay> GetVacationDayFromBookings(VacationBooking vacationBooking)
+        public List<StrojDay> GetStrojDayFromBookings(StrojBooking strojBooking)
+        {
+            var vacdayList = new List<StrojDay>();
+            for (DateTime d = strojBooking.FromDate; d <= strojBooking.ToDate; d = d.AddDays(1))
+            {
+                var vacday = new StrojDay()
+                {
+                    Id = 0,
+                    VacationDate = d,
+                    StrojBookingId = strojBooking.Id,
+                };
+                if (d.DayOfWeek == DayOfWeek.Saturday || d.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    continue;
+                }
+                vacdayList.Add(vacday);
+            }
+            return vacdayList;
+        }
+
+       /*  public List<VacationDay> GetVacationDayFromBookings(VacationBooking vacationBooking)
         {
             var vacdayList = new List<VacationDay>();
             for (DateTime d = vacationBooking.FromDate; d <= vacationBooking.ToDate; d = d.AddDays(1))
@@ -226,7 +271,7 @@ namespace VacationPlannerWeb.DataAccess
             }
             return vacdayList;
         }
-
+ */
         private void ClearDatabase(bool clearAll = false)
         {
             var departments = _context.Departments.ToList();

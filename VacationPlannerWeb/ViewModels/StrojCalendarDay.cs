@@ -14,6 +14,9 @@ namespace VacationPlannerWeb.ViewModels
         public string Approval { get; set; }
         public string Note { get; set; }
         public string AbsenceType { get; set; }
+        public string AbsenceColor {get; set;}
+        public string AbsenceSmer {get; set;}
+        public string AbsenceStrojnik {get; set;}
 
         public int StrojBookingId { get; set; }
     }

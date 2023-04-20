@@ -81,14 +81,14 @@ namespace VacationPlannerWeb.Controllers
         {
             ViewData["TeamId"] = new SelectList(await GetTeamDisplayList(), "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(await GetDepartmentDisplayList(), "Id", "Name");
-            ViewData["MistrId"] = new SelectList(await GetMistrDisplayList(), "Id", "Name");
+            ViewData["MistrId"] = new SelectList(await GetMistrDisplayList(), "Id", "Alias");
             return View();
         }
 
         // POST: AbsenceTypes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("InvNr,Name,Popis,TeamId,DepartmentId,IsHidden,MistrId")] Stroj stroj)
+        public async Task<IActionResult> Create([Bind("InvNr,Name,Popis,TeamId,DepartmentId,IsHidden,MistrId,StrojColor")] Stroj stroj)
         {
             if (ModelState.IsValid)
             {
@@ -122,8 +122,8 @@ namespace VacationPlannerWeb.Controllers
         private async Task<List<StrojMistr>> GetMistrDisplayList()
         {
             var mistrList = await _context.StrojMistrs.ToListAsync();
-            mistrList.Add(new StrojMistr() { Name = "< None >" });
-            return mistrList.OrderBy(d => d.Id).ToList();
+            mistrList.Add(new StrojMistr() { Alias = "< None >" });
+            return mistrList.OrderByDescending(d => d.Id).ToList();
         }
 
         // GET: AbsenceTypes/Edit/5
@@ -136,14 +136,14 @@ namespace VacationPlannerWeb.Controllers
             }
             ViewData["DepartmentId"] = new SelectList(await GetDepartmentDisplayList(), "Id", "Name");
             ViewData["TeamId"] = new SelectList(await GetTeamDisplayList(), "Id", "Name");
-            ViewData["MistrId"] = new SelectList(await GetMistrDisplayList(), "Id", "Name");
+            ViewData["MistrId"] = new SelectList(await GetMistrDisplayList(), "Id", "Alias");
             return View(stroje);
         }
 
         // POST: AbsenceTypes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,InvNr,Name,Popis,TeamId,DepartmentId,IsHidden,MistrId")] Stroj stroj)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,InvNr,Name,Popis,TeamId,DepartmentId,IsHidden,MistrId,StrojColor")] Stroj stroj)
         {
             if (id != stroj.Id)
             {
@@ -159,7 +159,7 @@ namespace VacationPlannerWeb.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DepartmentExists(stroj.Id))
+                    if (!StrojExists(stroj.Id))
                     {
                         return NotFound();
                     }
@@ -189,8 +189,6 @@ namespace VacationPlannerWeb.Controllers
             stroj.Department = await _context.Departments.AsNoTracking().SingleOrDefaultAsync(x => x.Id == stroj.DepartmentId);
             stroj.StrojMistr = await _context.StrojMistrs.AsNoTracking().SingleOrDefaultAsync(x => x.Id == stroj.MistrId);
             return View(stroj);
-
-            //return View(stroje);
         }
 
         // POST: AbsenceTypes/Delete/5
@@ -199,12 +197,31 @@ namespace VacationPlannerWeb.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var stroj = await _context.Strojs.SingleOrDefaultAsync(m => m.Id == id);
+            var strojBylPouzit = strojPouzit(id);
+            if(!strojBylPouzit)
+            {
             _context.Strojs.Remove(stroj);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("Name", "Stroj nemůže být vymazán, protože je použit v kalendáři.");
+            return View(stroj);
         }
 
-        private bool DepartmentExists(int id)
+        public bool strojPouzit(int id)
+        {
+            //bool pouzit = false;
+            var pouzitStrojBooking = _context.StrojBookings.Any(e => e.StrojId == id);
+
+/*             if(pouzitStrojBooking)
+            {
+                pouzit = true;
+            } */
+            return pouzitStrojBooking;
+        }
+
+        private bool StrojExists(int id)
         {
             return _context.Strojs.Any(e => e.Id == id);
         }

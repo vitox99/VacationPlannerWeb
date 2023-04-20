@@ -29,7 +29,7 @@ namespace VacationPlannerWeb.Models
         public DateTime ToDate { get; set; }
 
         public int? AbsenceTypeId { get; set; }
-        public AbsenceType AbsenceType { get; set; }
+        public Zakazka AbsenceType { get; set; }
         public string Approval { get; set; }
 
         [DataType(DataType.Text)]

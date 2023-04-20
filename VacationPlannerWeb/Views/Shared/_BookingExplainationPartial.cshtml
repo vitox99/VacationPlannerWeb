@@ -8,7 +8,7 @@
         @ApprovalState.Pending.ToString()
         <span class="glyphicon glyphicon-option-horizontal planned-vacation" aria-hidden="true"></span>
     </div>
-    <div>
+@*     <div>
         Absence Type:
         @for (int i = 0; i < Model.AbsenceTypes.Count; i++)
         {
@@ -24,4 +24,16 @@
         }
         <span class="planned-vacation">Other</span>
     </div>
+    <div>
+        barvy:
+        @for(int i=0; i < Model.AbsenceTypes.Count; i++)
+        {
+            var cls3 = $"absence-color-{i} ";
+            <span class="@cls3">@Model.AbsenceTypes[i]</span>
+            var barva = Model.Barva;
+            //var barva2 = Model.AbsenceTypesBarva;
+            var barvaRed = "red";
+            <span style="background-color:@barvaRed;">@Model.AbsenceTypes[i]</span>
+        }
+    </div> *@
 </p>

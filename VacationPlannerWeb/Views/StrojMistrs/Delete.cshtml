@@ -1,0 +1,59 @@
+﻿@model StrojMistr
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Smazat</h2>
+
+<h3>Jste si jisti, že chcete smazat tento záznam?</h3>
+<div>
+    <h4>Strojvedoucí</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.MistrId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MistrId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Alias)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Alias)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Telefon)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Telefon)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Color)
+        </dt>
+        <dd style="background-color: @Html.DisplayFor(modelItem => modelItem.Color);">
+            @Html.DisplayFor(model => model.Color)
+        </dd>
+    </dl>
+    <span asp-validation-for="Alias" class="text-danger"></span>
+    <br><br>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+    </form>
+</div>

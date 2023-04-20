@@ -15,7 +15,7 @@ namespace VacationPlannerWeb.Models
         public string Name { get; set; }
         [Display(Name = "Popis")]
         public string Popis { get; set; }
-        [Display(Name = "Posádka")]
+        [Display(Name = "Skupina strojů")]
         public int? TeamId { get; set; }
         [NotMapped]
         public Team Team { get; set; }
@@ -25,9 +25,14 @@ namespace VacationPlannerWeb.Models
         public Department Department { get; set; }
         [Display(Name = "Je skrytý")]
         public bool IsHidden { get; set; }
-        [Display(Name = "Mistr")]
+        
+        [Required]
+        [Display(Name = "Strojník")]
         public int? MistrId { get; set; }
+        
         [NotMapped]
         public StrojMistr StrojMistr { get; set; }
+        [Display(Name ="Barva")]
+        public string StrojColor {get; set;}
     }
 }

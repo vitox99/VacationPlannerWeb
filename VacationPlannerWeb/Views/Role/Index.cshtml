@@ -1,0 +1,92 @@
+﻿@model RoleViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Přehled</h2>
+
+<h1 class="bg-info text-white">Role</h1>
+<p>
+    <a class="btn btn-secondary" asp-action="Create"><b>Vytvořit roli</b></a>
+</p>
+<table class="table table-sm table-bordered">
+    <thead>
+        <tr>
+            <th>Název</th>
+            <th>Zkratka</th>
+            <th>Uživatelé</th>
+            <th class="table-center">Upravit</th>
+            <th class="table-center">Detail</th>
+            <th class="table-center">Smazat</th>
+            @* <th>
+                @Html.DisplayNameFor(Model => Model.Roles)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Shortening)
+            </th>
+            <th>
+                <p>Uživatelé</p>
+            </th> *@
+            
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (Role role in Model.Roles)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => role.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => role.Shortening)
+            </td>
+            <td i-role="@role.Id"></td>
+
+            @* <td><a class="btn btn-default btn-sm" asp-action="Edit" asp-route-id="@role.Id">Edit</a></td> *@
+            @* <td><a asp-action="Update" asp-route-id="@role.Id">Index</a></td> *@
+            <td class="table-center">
+                <a class="btn btn-primary btn-sm" asp-area="" asp-controller="RoleUpdate" asp-route-id="@role.Id" asp-action="Index">Upravit</a></td>
+            <td class="table-center"><a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@role.Id">Detail</a></td>
+            <td class="table-center"><button class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@role.Id" disabled>Smazat</button></td>
+            
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h1 class="bg-info text-white">Uživatelé</h1>
+
+<a class="btn btn-secondary" id="registerLink" asp-controller="Account" asp-action="Register"><b>Vytvořit uživatele</b></a>
+<table class="table table-sm table-bordered">
+    <tr>
+        <th>Příjmení</th>
+        <th>Jméno</th>
+        <th>ID</th>
+        <th>Uživatelské jméno</th>
+        <th>Email</th>
+        <th class="table-center">Upravit</th>
+        <th class="table-center">Smazat</th>
+    </tr>
+    @foreach (User user in Model.Users)
+    {
+    <tr>
+        <td>@user.LastName</td>
+        <td>@user.FirstName</td>
+        <td>@user.Id</td>
+        <td>@user.UserName</td>
+        <td>@user.Email</td>
+        <td class="table-center">
+            @* <a class="btn btn-sm btn-primary" asp-route-id="@user.Id" asp-area="" asp-page="/Pozadavky/IndexUserUpdate">Update</a> *@
+            <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="EditUser" asp-route-id="@user.Id">Upravit</a>
+        </td>
+        <td class="table-center">
+            @*     <form asp-page-handler="DeleteUser" asp-route-id="@user.Id" method="post">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Opravdu chcete vymazat uživatele @user.UserName?')">
+                        Smazat
+                    </button>
+                </form> *@
+            <a class="btn btn-danger btn-sm" asp-controller="Account" asp-action="RemoveUser" asp-route-id="@user.Id">Smazat</a>
+        </td>
+    </tr>
+    }
+</table>

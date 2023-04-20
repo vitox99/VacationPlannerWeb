@@ -34,31 +34,53 @@
                 <select asp-for="AbsenceTypeId" class="form-control" asp-items="ViewBag.AbsenceTypes"></select>
                 <span asp-validation-for="AbsenceTypeId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+@*             <div class="form-group">
                 <label asp-for="Approval" class="control-label"></label>
                 <select asp-for="Approval" class="form-control" asp-items="ViewBag.ApprovalStates"></select>
                 <span asp-validation-for="Approval" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <label asp-for="SmerPrace" class="control-label"></label>
+                <input asp-for="SmerPrace" class="form-control" />
+                <span asp-validation-for="SmerPrace" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StrojMistr" class="control-label"></label>
+                <select asp-for="StrojMistrId" class="form-control" asp-items="ViewBag.StrojMistrTypes"></select>
+                <span asp-validation-for="StrojMistrId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Comment" class="control-label"></label>
                 <input asp-for="Comment" class="form-control" />
                 <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
+            <br>
             <div class="form-group">
                 <input type="submit" value="Uložit" class="btn btn-primary" disabled="@ViewBag.NotEditable"/>
+                <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id">Smazat</a>
                 @if (ViewBag.NotEditable)
                 {
                     <label>@ViewBag.NotEditableMessage</label>
                 }
             </div>
+            <br>
+            <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+            <a class="btn btn-info" asp-controller="StrojCalendar" asp-action="StrojManagerOverview">Zpět na kalendář</a>
         </form>
     </div>
 </div>
 
-<div>
-    <a class="btn btn-default" asp-action="Index">Zpět na přehled</a>
-</div>
 
+@* <div>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        
+        <a class="btn btn-default btn-sm" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+
+    </form>
+</div>
+ *@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/js/DatePickerLogic.js"></script>

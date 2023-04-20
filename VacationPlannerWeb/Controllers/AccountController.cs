@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
+
+//using System.Data;
+
+
 namespace VacationPlannerWeb.Controllers
 {
     [AllowAnonymous]
@@ -19,14 +23,16 @@ namespace VacationPlannerWeb.Controllers
         private readonly AppDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AccountController(AppDbContext context, UserManager<User> userManager, SignInManager<User> signInManager)
+        private IPasswordHasher<User> _passwordHasher;
+        public AccountController(AppDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, IPasswordHasher<User> passwordHash)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _passwordHasher = passwordHash;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Index(bool showHidden = false)
         {
             var allUsers = await _context.Users.AsNoTracking().Where(x => x.IsHidden == showHidden).ToListAsync();
@@ -160,6 +166,7 @@ namespace VacationPlannerWeb.Controllers
             var manId = user.ManagerUserId;
             var firstName = user.FirstName;
             var lastName = user.LastName;
+            //var password = user.Password;
 
             user = await _context.Users.FindAsync(user.Id);
             user.FirstName = firstName;
@@ -168,6 +175,7 @@ namespace VacationPlannerWeb.Controllers
             user.TeamId = teamId;
             user.DepartmentId = depId;
             user.ManagerUserId = manId;
+            //user.PasswordHash = _passwordHasher.HashPassword(user, password);
 
             if (ModelState.IsValid)
             {
@@ -187,7 +195,8 @@ namespace VacationPlannerWeb.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Role");
             }
 
             ViewData["TeamId"] = new SelectList(await GetTeamsDisplayList(), "Id", "Name", user.TeamId);
@@ -228,7 +237,7 @@ namespace VacationPlannerWeb.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,FirstName,LastName,TeamId,DepartmentId")] User user)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,FirstName,LastName,TeamId,DepartmentId,Password")] User user)
         {
             if (id != user?.Id)
             {
@@ -236,7 +245,7 @@ namespace VacationPlannerWeb.Controllers
             }
 
             var currentUser = await GetCurrentUser();
-            
+
             var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
             if (isAdmin == false)
             {
@@ -277,6 +286,7 @@ namespace VacationPlannerWeb.Controllers
                     }
                 }
                 return RedirectToAction(nameof(UserProfile));
+                //return RedirectToPage("/Role/Index");
             }
 
             ViewData["TeamId"] = new SelectList(await GetTeamsDisplayList(), "Id", "Name", user.TeamId);
@@ -289,7 +299,7 @@ namespace VacationPlannerWeb.Controllers
         {
             var user = await _context.Users.AsNoTracking()
                 .SingleOrDefaultAsync(u => u.Id == id);
-            
+
             user.Team = await _context.Teams.AsNoTracking().SingleOrDefaultAsync(x => x.Id == user.TeamId);
             user.Department = await _context.Departments.AsNoTracking().SingleOrDefaultAsync(x => x.Id == user.DepartmentId);
 
@@ -312,7 +322,7 @@ namespace VacationPlannerWeb.Controllers
             }
             if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
-                ViewData["DeleteError"] = $"You can't remove an Admin user.";
+                ViewData["DeleteError"] = $"Nemůžete smazat uživatele Admin.";
                 return View(nameof(RemoveUser), user);
             }
 
@@ -344,7 +354,8 @@ namespace VacationPlannerWeb.Controllers
                 var notChangedUser = await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
                 return View(nameof(RemoveUser), notChangedUser);
             }
-            return RedirectToAction(nameof(Index));
+            //return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Role");
         }
 
         private async Task<List<Team>> GetTeamsDisplayList()
@@ -477,8 +488,9 @@ namespace VacationPlannerWeb.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    /* await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home"); */
+                    return RedirectToAction("Index", "Role");
                 }
                 else
                 {
@@ -540,5 +552,65 @@ namespace VacationPlannerWeb.Controllers
             return View();
         }
         #endregion
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ChangePass(string id)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            /*             var managerForUsers = await _context.Users.AsNoTracking()
+                            .Where(x => x.ManagerUserId != null).Where(x => x.ManagerUserId == user.Id)
+                            .Select(x => x.DisplayName).ToListAsync(); */
+
+            //ViewData["ManagerForUserNames"] = managerForUsers.Any() ? string.Join(", ", managerForUsers) : "< None >";
+            ViewData["TeamId"] = new SelectList(await GetTeamsDisplayList(), "Id", "Name", user.TeamId);
+            ViewData["DepartmentId"] = new SelectList(await GetDepartmentDisplayList(), "Id", "Name", user.DepartmentId);
+            //ViewData["ManagerUserId"] = new SelectList(await GetManagersDisplayList(), "Id", "DisplayName", user.ManagerUserId);
+            return View(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePass(string id, [Bind("Id,Password")] User user)
+        {
+            if (id != user?.Id)
+            {
+                return BadRequest();
+            }
+
+            var password = user.Password;
+
+            user = await _context.Users.FindAsync(user.Id);
+            user.PasswordHash = _passwordHasher.HashPassword(user, password);
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UserExists(user.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Role");
+            }
+            return View(user);
+        }
+
     }
 }

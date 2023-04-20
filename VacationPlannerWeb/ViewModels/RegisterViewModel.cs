@@ -10,24 +10,26 @@ namespace VacationPlannerWeb.ViewModels
     {
         [Required]
         [DataType(DataType.EmailAddress)]
+        [DisplayName("Email")]
         public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
+        [DisplayName("Heslo")]
         public string Password { get; set; }
 
         [Required]
-        [DisplayName("First Name")]
+        [DisplayName("Jméno")]
         public string FirstName { get; set; }
 
         [Required]
-        [DisplayName("Last Name")]
+        [DisplayName("Příjmení")]
         public string LastName { get; set; }
 
         [DisplayName("Team")]
         public int? TeamId { get; set; }
 
-        [DisplayName("Department")]
+        [DisplayName("Oddělení")]
         public int? DepartmentId { get; set; }
 
         public List<string> Errors { get; set; }

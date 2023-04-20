@@ -182,7 +182,7 @@ namespace VacationPlannerWeb.Controllers
                 vacBooking.FromDate = DateTime.Today;
                 vacBooking.ToDate = DateTime.Today;
             }
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name));
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name));
             return View(vacBooking);
         }
 
@@ -230,7 +230,7 @@ namespace VacationPlannerWeb.Controllers
                 }
 
             }
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name));
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name));
             return View(vacationBooking);
         }
 
@@ -239,7 +239,7 @@ namespace VacationPlannerWeb.Controllers
             ModelState.AddModelError(nameof(VacationBooking.AbsenceTypeId), "Invalid AbscenceType");
         }
 
-        private async Task<AbsenceType> GetAbsenceTypeById(int? absenceTypeId)
+        private async Task<Zakazka> GetAbsenceTypeById(int? absenceTypeId)
         {
             return await _context.AbsenceTypes.FindAsync(absenceTypeId);
         }
@@ -279,13 +279,13 @@ namespace VacationPlannerWeb.Controllers
             }
 
             ViewBag.NotEditable = isNotEditable;
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name), vacationBooking.AbsenceTypeId);
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name), vacationBooking.AbsenceTypeId);
             ViewData["ApprovalStates"] = new SelectList(await GetApprovalStatesForUser(vacationBooking, user), "Value", "Value", vacationBooking.Approval);
             ViewData["UserId"] = new SelectList(await _context.Users.Where(x => x.Id == vacationBooking.UserId).ToListAsync(), "Id", "DisplayName", vacationBooking.UserId);
             return View(vacationBooking);
         }
 
-        private async Task<List<AbsenceType>> GetAbsenceTypes()
+        private async Task<List<Zakazka>> GetAbsenceTypes()
         {
             return await _context.AbsenceTypes.AsNoTracking().ToListAsync();
         }
@@ -391,7 +391,7 @@ namespace VacationPlannerWeb.Controllers
                 vacationBooking.User = vacbookingReadOnly.User;
             }
             ViewBag.NotEditable = isNotEditable;
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name), vacationBooking.AbsenceTypeId);
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name), vacationBooking.AbsenceTypeId);
             ViewData["ApprovalStates"] = new SelectList(await GetApprovalStatesForUser(vacationBooking, user), "Value", "Value", vacationBooking.Approval);
             ViewData["UserId"] = new SelectList(await _context.Users.Where(x => x.Id == vacationBooking.UserId).ToListAsync(), "Id", "DisplayName", vacationBooking.UserId);
             return View(vacationBooking);

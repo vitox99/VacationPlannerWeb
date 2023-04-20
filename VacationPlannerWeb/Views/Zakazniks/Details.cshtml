@@ -1,0 +1,41 @@
+﻿@model Zakaznik
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Detail</h2>
+
+<div>
+    <h4>Zákazník</h4>
+    <hr />
+    <div class="container-fluid">
+        <div class="col col-md-6">
+            <div class="row justify-content-start">
+                <label class="col-2 fw-bold">@Html.DisplayNameFor(model => model.Nazev)</label>
+                <div class="col-4">@Html.DisplayFor(model => model.Nazev)</div>
+            </div>
+            <div class="row justify-content-start">
+                <label class="col-2 fw-bold">@Html.DisplayNameFor(model => model.IC)</label>
+                <div class="col-4">@Html.DisplayFor(model => model.IC)</div>
+            </div>
+            <div class="row justify-content-start">
+                <label class="col-2 fw-bold">@Html.DisplayNameFor(model => model.Tel)</label>
+                <div class="col-4">@Html.DisplayFor(model => model.Tel)</div>
+            </div>
+            <div class="row justify-content-start">
+                <label class="col-2 fw-bold">@Html.DisplayNameFor(model => model.Email)</label>
+                <div class="col-4">@Html.DisplayFor(model => model.Email)</div>
+            </div>
+            <div class="row justify-content-start">
+                <label class="col-2 fw-bold">@Html.DisplayNameFor(model => model.Poznamka)</label>
+                <div class="col-4">@Html.DisplayFor(model => model.Poznamka)</div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<div>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Upravit</a> |
+    <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+</div>

@@ -30,7 +30,7 @@ namespace VacationPlannerWeb.Controllers
             var user = await GetCurrentUser();
             if (user == null)
             {
-                return NotFound($"Akotuální uživatel nebyl nalezen v databázi.");
+                return NotFound($"Aktuální uživatel nebyl nalezen v databázi.");
             }
 
             List<StrojBooking> vacBookingList;
@@ -45,7 +45,8 @@ namespace VacationPlannerWeb.Controllers
             }
             else
             {
-                vacBookingList = await GetVacationBookingsByUser(user);
+                //vacBookingList = await GetVacationBookingsByUser(user);
+                vacBookingList = await GetAllVacationBookings();
             }
 
             return View(vacBookingList);
@@ -59,6 +60,23 @@ namespace VacationPlannerWeb.Controllers
         private async Task<Stroj> GetCurrentStroj(int? strojId)
         {
             return await _context.Strojs.FindAsync(strojId);
+        }
+
+/*         private async Task<StrojMistr> GetCurrentStrojMistr(int? strojId)
+        {
+            return await _context.StrojMistrs.FindAsync(strojId);
+        } */
+        private async Task<StrojMistr> GetCurrentStrojMistr(int? strojId)
+        {
+            var strojnik = (from s in _context.Strojs
+            join r in _context.StrojMistrs on s.MistrId equals r.Id
+            where s.Id == strojId
+            select r).FirstOrDefault();
+            if(strojnik == null)
+            {
+                strojnik = _context.StrojMistrs.Where(x => x.Id == 8).FirstOrDefault();
+            }
+            return strojnik;
         }
 
         private async Task<User> GetOldUser(string userId)
@@ -135,7 +153,7 @@ namespace VacationPlannerWeb.Controllers
 
         private async Task<List<StrojBooking>> GetAllVacationBookings()
         {
-            return await _context.StrojBookings.Include(v => v.User).Include(v => v.VacationDays).Include(v => v.AbsenceType).Include(v => v.Stroj)
+            return await _context.StrojBookings.Include(v => v.User).Include(v => v.VacationDays).Include(v => v.AbsenceType).Include(v => v.Stroj).Include(v => v.StrojMistr)
                 .ToListAsync();
         }
 
@@ -158,7 +176,7 @@ namespace VacationPlannerWeb.Controllers
             }
 
             var strojBooking = await _context.StrojBookings
-                .Include(v => v.User).Include(v => v.VacationDays).Include(v => v.AbsenceType)/*.Include(v => v.Stroj)*/
+                .Include(v => v.User).Include(v => v.VacationDays).Include(v => v.AbsenceType).Include(v => v.Stroj).Include(v => v.StrojMistr)
                 .SingleOrDefaultAsync(m => m.Id == id);
 
             if (strojBooking == null)
@@ -171,13 +189,13 @@ namespace VacationPlannerWeb.Controllers
             var user = await GetCurrentUser();
             var stroj = await GetCurrentStroj(strojBooking.StrojId);
             
-            if (!await HasRolesAsync(user, "Admin,Manager") && ! IsManagerForBookingUser(strojBooking, user))
+/*             if (!await HasRolesAsync(user, "Admin,Manager") && ! IsManagerForBookingUser(strojBooking, user))
             {
                 if (!IsOwner(strojBooking, user))
                 {
                     return View("AccessDenied");
                 }
-            }
+            } */
 
             return View(strojBooking);
         }
@@ -193,28 +211,36 @@ namespace VacationPlannerWeb.Controllers
         }
 
         //Todo: Add both start and end-date as in parameters
-        public async Task<IActionResult> Create(string startdate)
+        [Authorize(Roles = "Admin,Manager,Writer")]
+        public async Task<IActionResult> Create(int? id, string date)
         {
             var vacBooking = new StrojBooking();
-            if (!string.IsNullOrWhiteSpace(startdate))
+            if(!String.IsNullOrEmpty(id.ToString()))
             {
-                vacBooking.FromDate = DateTime.Parse(startdate);
-                vacBooking.ToDate = DateTime.Parse(startdate);
+                vacBooking.StrojId = id.Value;
+            }
+            if (!string.IsNullOrWhiteSpace(date))
+            {
+                vacBooking.FromDate = DateTime.Parse(date);
+                vacBooking.ToDate = DateTime.Parse(date);
             }
             else
             {
                 vacBooking.FromDate = DateTime.Today;
                 vacBooking.ToDate = DateTime.Today;
             }
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name));
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name));
             ViewData["StrojTypes"] = new SelectList(await GetStrojTypes(), nameof(Stroj.Id), nameof(Stroj.Name));
+            //ViewData["StrojMistrTypes"] = new SelectList(await GetStrojMistrTypes(), nameof(StrojMistr.Id), nameof(StrojMistr.Alias));
+            //ViewData["StrojMistrCurrent"] = new SelectList(await GetStrojMistrCurrent(), nameof(StrojMistr.Id), nameof(StrojMistr.Alias));
             return View(vacBooking);
         }
 
         // POST: StrojBookings/Create
+        [Authorize(Roles = "Admin,Manager,Writer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StrojId,FromDate,ToDate,Comment,AbsenceTypeId")] StrojBooking strojBooking)
+        public async Task<IActionResult> Create([Bind("StrojId,FromDate,ToDate,SmerPrace,Comment,AbsenceTypeId")] StrojBooking strojBooking)
         {
             var absenceType = await GetAbsenceTypeById(strojBooking.AbsenceTypeId);
             if (absenceType == null)
@@ -230,6 +256,7 @@ namespace VacationPlannerWeb.Controllers
 
                 var user = await GetCurrentUser();
                 var stroj = await GetCurrentStroj(strojBooking.StrojId);
+                var strojnik = await GetCurrentStrojMistr(strojBooking.StrojId);
 
                 var holidayList = _context.WorkFreeDays.AsNoTracking().Select(x => x.Date).ToList();
                 var userVacbookings = await GetVacationBookingsByUser(user);
@@ -253,6 +280,8 @@ namespace VacationPlannerWeb.Controllers
                 strojBooking.AbsenceType = absenceType;
                 strojBooking.StrojId = stroj.Id;
                 strojBooking.Stroj = stroj;
+                strojBooking.StrojMistrId = strojnik.Id;
+                //strojBooking.StrojMistrId = strojnik;
 
                 if (!isErrors)
                 {
@@ -263,7 +292,7 @@ namespace VacationPlannerWeb.Controllers
                 }
 
             }
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name));
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name));
             ViewData["StrojTypes"] = new SelectList(await GetStrojTypes(), nameof(Stroj.Id), nameof(Stroj.Name));
             return View(strojBooking);
         }
@@ -273,11 +302,12 @@ namespace VacationPlannerWeb.Controllers
             ModelState.AddModelError(nameof(StrojBooking.AbsenceTypeId), "Invalid AbscenceType");
         }
 
-        private async Task<AbsenceType> GetAbsenceTypeById(int? absenceTypeId)
+        private async Task<Zakazka> GetAbsenceTypeById(int? absenceTypeId)
         {
             return await _context.AbsenceTypes.FindAsync(absenceTypeId);
         }
 
+        [Authorize(Roles = "Admin,Manager,Writer")]
         // GET: StrojBookings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -300,28 +330,30 @@ namespace VacationPlannerWeb.Controllers
 
             if ((!await HasRolesAsync(user, "Admin,Manager") && !IsManagerForBookingUser(strojBooking, user)))
             {
-                if (!IsOwner(strojBooking, user))
+/*                 if (!IsOwner(strojBooking, user))
                 {
                     return View("AccessDenied");
-                }
+                } */
 
                 if (ApprovalIsNotPending(strojBooking))
                 {
-                    isNotEditable = true;
+/*                     isNotEditable = true;
                     ViewBag.NotEditableMessage = "Nemůžete editovat událost se statusem Approved nebo Denied. " +
-                        "\nProsím, smažte existující událost a vytvořte novou.";
+                        "\nProsím, smažte existující událost a vytvořte novou."; */
                 }
             }
 
             ViewBag.NotEditable = isNotEditable;
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name), strojBooking.AbsenceTypeId);
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name), strojBooking.AbsenceTypeId);
             ViewData["ApprovalStates"] = new SelectList(await GetApprovalStatesForUser(strojBooking, user), "Value", "Value", strojBooking.Approval);
             ViewData["UserId"] = new SelectList(await _context.Users.Where(x => x.Id == strojBooking.UserId).ToListAsync(), "Id", "DisplayName", strojBooking.UserId);
             ViewData["StrojTypes"] = new SelectList(await GetStrojTypes(), nameof(Stroj.Id), nameof(Stroj.Name));
+            ViewData["StrojMistrTypes"] = new SelectList(await GetStrojMistrTypes(), nameof(StrojMistr.Id), nameof(StrojMistr.Alias));
+            
             return View(strojBooking);
         }
 
-        private async Task<List<AbsenceType>> GetAbsenceTypes()
+        private async Task<List<Zakazka>> GetAbsenceTypes()
         {
             return await _context.AbsenceTypes.AsNoTracking().ToListAsync();
         }
@@ -330,7 +362,20 @@ namespace VacationPlannerWeb.Controllers
         {
             return await _context.Strojs.AsNoTracking().ToListAsync();
         }
+        private async Task<List<StrojMistr>> GetStrojMistrTypes()
+        {
+            return await _context.StrojMistrs.AsNoTracking().ToListAsync();
+        }
 
+/*         private async Task<List<StrojMistr>> GetStrojMistrTypes()
+        {
+            return await _context.StrojMistrs.AsNoTracking().ToListAsync();
+        } */
+
+/*         private async Task<List<StrojMistr>> GetStrojMistrCurrent()
+        {
+            return await _context.StrojMistrs.Select(x => x.MistrId = ).AsNoTracking().ToListAsync();
+        } */
         ///<summary>
         ///Returns list of all valid approval states for the specified user.
         ///</summary>
@@ -347,7 +392,7 @@ namespace VacationPlannerWeb.Controllers
         // POST: StrojBookings/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,StrojId,FromDate,ToDate,Approval,Comment,AbsenceTypeId")] StrojBooking strojBooking)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,StrojId,FromDate,ToDate,Approval,SmerPrace,Comment,AbsenceTypeId,StrojMistrId")] StrojBooking strojBooking)
         {
             if (id != strojBooking.Id)
             {
@@ -381,13 +426,13 @@ namespace VacationPlannerWeb.Controllers
 
             if (!await HasRolesAsync(user, "Admin") && !IsManagerForBookingUser(vacbookingReadOnly, user))
             {
-                if (ApprovalIsNotPending(vacbookingReadOnly))
+/*                 if (ApprovalIsNotPending(vacbookingReadOnly))
                 {
                     isNotEditable = true;
-                    ViewBag.NotEditableMessage = "Nemůžete editovat událost se statusem Approved nebo Denied. " +
+                    ViewBag.NotEditableMessage = "Nemůžete změnit událost se statusem Approved nebo Denied. " +
                         "\nProsím, smažte existující událost a vytvořte novou.";
-                    ModelState.AddModelError("UserId", "Nemůžete editovat událost se statusem Approved nebo Denied.");
-                }
+                    ModelState.AddModelError("UserId", "Nemůžete změnit událost se statusem Approved nebo Denied.");
+                } */
 
                 ValidateVacationBookingChanges(strojBooking, vacbookingReadOnly);
             }
@@ -449,7 +494,8 @@ namespace VacationPlannerWeb.Controllers
                         }
                     }
 
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index");
                 }
             }
 
@@ -458,10 +504,10 @@ namespace VacationPlannerWeb.Controllers
                 strojBooking.User = vacbookingReadOnly.User;
             }
             ViewBag.NotEditable = isNotEditable;
-            ViewData["StrojTypes"] = new SelectList(await GetStrojTypes(), nameof(Stroj.Id), nameof(Stroj.Name));
-            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(AbsenceType.Id), nameof(AbsenceType.Name), strojBooking.AbsenceTypeId);
+/*             ViewData["StrojTypes"] = new SelectList(await GetStrojTypes(), nameof(Stroj.Id), nameof(Stroj.Name));
+            ViewData["AbsenceTypes"] = new SelectList(await GetAbsenceTypes(), nameof(Zakazka.Id), nameof(Zakazka.Name), strojBooking.AbsenceTypeId);
             ViewData["ApprovalStates"] = new SelectList(await GetApprovalStatesForUser(strojBooking, user), "Value", "Value", strojBooking.Approval);
-            ViewData["UserId"] = new SelectList(await _context.Users.Where(x => x.Id == strojBooking.UserId).ToListAsync(), "Id", "DisplayName", strojBooking.UserId);
+            ViewData["UserId"] = new SelectList(await _context.Users.Where(x => x.Id == strojBooking.UserId).ToListAsync(), "Id", "DisplayName", strojBooking.UserId); */
             return View(strojBooking);
         }
 
@@ -671,6 +717,7 @@ namespace VacationPlannerWeb.Controllers
         }
 
         // GET: StrojBookings/Delete/5
+        [Authorize(Roles = "Admin,Manager,Writer")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -704,9 +751,11 @@ namespace VacationPlannerWeb.Controllers
             return View(strojBooking);
         }
 
-        // POST: StrojBookings/Delete/5
+        // POST: StrojBookings/Delete/5,        
+        [Authorize(Roles = "Admin,Manager,Writer")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var strojBooking = await _context.StrojBookings.Include(v => v.VacationDays).SingleOrDefaultAsync(m => m.Id == id);

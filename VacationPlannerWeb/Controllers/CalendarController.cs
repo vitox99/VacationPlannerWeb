@@ -110,6 +110,7 @@ namespace VacationPlannerWeb.Controllers
             var workFreeDaysList = await _context.WorkFreeDays.ToListAsync();
 
             DateTime currentFirstDayInWeek = CalendarHelper.FirstDateOfWeekISO8601(year, weeknumber, _cultureInfo);
+            
             var userCalendarDayDic = await GetUserCalendarDayDictionary(sortedUsersList, workFreeDaysList, currentFirstDayInWeek);
 
             List<CalendarDay> caldaysList = GetAllCalendarDays(currentFirstDayInWeek);

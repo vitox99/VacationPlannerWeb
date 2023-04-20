@@ -28,7 +28,8 @@ namespace VacationPlannerWeb
             
             services.AddDbContext<AppDbContext>(options => 
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionSql"));
+                //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionSql"));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection10_10_10_152"));
                 options.EnableSensitiveDataLogging();
             });
             
@@ -94,8 +95,10 @@ namespace VacationPlannerWeb
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
+                //app.UseDeveloperExceptionPage();
+                app.UseMigrationsEndPoint();
+                //app.UseExceptionHandler("/Home/Error");
+                //app.UseHsts();
             }
 /*
             using (var scope = 
@@ -116,9 +119,10 @@ namespace VacationPlannerWeb
             {
                 endpoints.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                //pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=StrojCalendar}/{action=StrojmanagerOverview}/{id?}");
             });
         }
-        
+
     }
 }

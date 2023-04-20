@@ -1,0 +1,34 @@
+@model User
+@inject Microsoft.AspNetCore.Identity.UserManager<User> userManager
+
+@{
+    ViewData["Title"] = "Změna hesla";
+}
+
+<h2>Změna hesla</h2>
+<h4>@Model.DisplayName</h4>
+
+<div class="row">
+    <div class="col-md-5">
+        <form asp-action="ChangePass">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Password" class="control-label col-md-4"></label>
+                <div>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br>
+<div>
+    <a class="btn btn-info" asp-action="EditUser" asp-route-id="@Model.Id">Zpět na přehled</a>
+</div>

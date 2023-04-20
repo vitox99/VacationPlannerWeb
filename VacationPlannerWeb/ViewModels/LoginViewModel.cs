@@ -10,6 +10,7 @@ namespace VacationPlannerWeb.ViewModels
         public string Email { get; set; }
 
         [Required]
+        [Display(Name ="Heslo")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 

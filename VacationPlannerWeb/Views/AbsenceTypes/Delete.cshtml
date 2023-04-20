@@ -1,27 +1,82 @@
-﻿@model AbsenceType
+﻿@model Zakazka
 
 @{
     ViewData["Title"] = "Delete";
 }
 
-<h2>Delete</h2>
+<h2>Smazat</h2>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Jste si jisti, že chcete smazat tento záznam?</h3>
 <div>
-    <h4>AbsenceType</h4>
+    <h4>Zakázka</h4>
     <hr />
     <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.CisloZakazky)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CisloZakazky)
+        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Zakaznik.Nazev)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Zakaznik.Nazev)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SmerPrace)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SmerPrace)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Poznamka)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Poznamka)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Color)
+        </dt>
+        <dd style="background-color: @Html.DisplayFor(model => model.Color);">
+            @Html.DisplayFor(model => model.Color)
+        </dd>
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
     </form>
+
+        @if (ViewData["ZakPouzita"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("Není možné smazat zakázku použitou v kalendáři.");
+            };
+        </script>
+         }
+
+@*     <h1>@ViewData["Chyba"]</h1>
+    @{
+        var text = ViewData["Chyba"].ToString();
+    }
+
+    @if (ViewData["Chyba"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("@ViewData["Chyba"]");
+            }; 
+        </script>
+         }*@
+
+
 </div>

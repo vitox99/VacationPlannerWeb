@@ -4,11 +4,11 @@
     ViewData["Title"] = "Delete";
 }
 
-<h2>Delete</h2>
+<h2>Smazat</h2>
 
-<h3>Jste si jisti, že chcete záznam smazat?</h3>
+<h3>Jste si jisti, že chcete smazat tento záznam?</h3>
 <div>
-    <h4>Správa strojů</h4>
+    <h4>Stroje</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -57,10 +57,11 @@
             @Html.DisplayFor(model => model.StrojMistr.Name)
         </dd>
     </dl>
-    
+        <span asp-validation-for="Name" class="text-danger"></span>
+    <br><br>
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Index">Zpět na přehled</a>
+        <input type="submit" value="Smazat" class="btn btn-danger" /> |
+        <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
     </form>
 </div>

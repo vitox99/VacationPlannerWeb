@@ -120,14 +120,40 @@ namespace VacationPlannerWeb.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var department = await _context.Departments.SingleOrDefaultAsync(m => m.Id == id);
+
+            var departmentBylPouzit = departmentPouzit(id);
+            if(!departmentBylPouzit)
+            {
             _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("Name", "Oddělení nemůže být vymazáno, protože je použito ve stroji.");
+            return View(department);
+/*             
+            _context.Departments.Remove(department);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index)); */
         }
+
+        public bool departmentPouzit(int id)
+        {
+            //bool pouzit = false;
+            //var pouzitStrojBooking = _context.StrojBookings.Any(e => e.StrojId == id);
+
+/*             if(pouzitStrojBooking)
+            {
+                pouzit = true;
+            } */
+            return _context.Strojs.Any(e => e.DepartmentId == id);
+        }
+
 
         private bool DepartmentExists(int id)
         {
             return _context.Departments.Any(e => e.Id == id);
         }
+
     }
 }

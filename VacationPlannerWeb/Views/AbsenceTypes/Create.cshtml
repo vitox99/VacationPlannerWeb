@@ -1,30 +1,56 @@
-﻿@model AbsenceType
+﻿@model Zakazka
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h2>Create</h2>
+<h2>Vytvořit</h2>
 
-<h4>AbsenceType</h4>
+<h4>Zakázka</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <label asp-for="CisloZakazky" class="control-label"></label>
+                <input asp-for="CisloZakazky" class="form-control" />
+                <span asp-validation-for="CisloZakazky" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <label asp-for="ZakaznikId" class="control-label"></label>
+                <select asp-for="ZakaznikId" class="form-control" asp-items="ViewBag.ZakaznikId"></select>
+                <span asp-validation-for="ZakaznikId" class="text-danger"></span>
+            </div>
+@*             <div class="form-group">
+                <label asp-for="SmerPrace" class="control-label"></label>
+                <input asp-for="SmerPrace" class="form-control" />
+                <span asp-validation-for="SmerPrace" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <label asp-for="Poznamka" class="control-label"></label>
+                <input asp-for="Poznamka" class="form-control" />
+                <span asp-validation-for="Poznamka" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="Color" class="form-label">Vyberte barvu</label>
+                <input asp-for="Color" type="color" class="form-control form-control-color" asp-value="Color" title="Choose your color">
+                <span asp-validation-for="Color" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Vytvořit" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
 </div>
 

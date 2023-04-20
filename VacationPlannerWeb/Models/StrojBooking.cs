@@ -16,6 +16,7 @@ namespace VacationPlannerWeb.Models
         public int? StrojId {get; set;}
         public Stroj Stroj {get; set;}
         public string UserId { get; set; }
+        [Display(Name ="Uživatel")]
         public User User { get; set; }
 
         [Required]
@@ -35,7 +36,7 @@ namespace VacationPlannerWeb.Models
         public int? AbsenceTypeId { get; set; }
         
         [Display(Name = "Zakázka")]
-        public AbsenceType AbsenceType { get; set; }
+        public Zakazka AbsenceType { get; set; }
         
         [Display(Name = "Schválení")]
         public string Approval { get; set; }
@@ -43,8 +44,17 @@ namespace VacationPlannerWeb.Models
         [DataType(DataType.Text)]
         [Display(Name = "Poznámka")]
         public string Comment { get; set; }
+
+        [DataType(DataType.Text)]
+        [Display(Name = "Směr práce")]
+        public string SmerPrace { get; set; }
+
         [Display(Name = "Dny v kalendáři")]
         public ICollection<StrojDay> VacationDays { get; set; }
+
+        [Display(Name ="Strojník")]
+        public StrojMistr StrojMistr {get;set;}
+        public int? StrojMistrId {get; set;}
     }
 
     public enum StrojSchvaleni

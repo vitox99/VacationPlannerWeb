@@ -121,9 +121,32 @@ namespace VacationPlannerWeb.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id);
+
+            var teamBylPouzit = teamPouzit(id);
+            if(!teamBylPouzit)
+            {
             _context.Teams.Remove(team);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("Name", "Skupina strojů nemůže být vymazána, protože je použita ve stroji.");
+            return View(team);
+/*             _context.Teams.Remove(team);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index)); */
+        }
+
+        public bool teamPouzit(int id)
+        {
+            //bool pouzit = false;
+            //var pouzitStrojBooking = _context.StrojBookings.Any(e => e.StrojId == id);
+
+/*             if(pouzitStrojBooking)
+            {
+                pouzit = true;
+            } */
+            return _context.Strojs.Any(e => e.TeamId == id);
         }
 
         private bool TeamExists(int id)

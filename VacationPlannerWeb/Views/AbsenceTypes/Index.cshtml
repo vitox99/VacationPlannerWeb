@@ -1,19 +1,39 @@
-﻿@model IEnumerable<AbsenceType>
+﻿@model IEnumerable<Zakazka>
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<h2>Správa zakázek</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    
+    @if(User.IsInRole("Admin")||User.IsInRole("Manager")||User.IsInRole("Writer"))
+    {
+        <a class="btn btn-primary" asp-action="Create">Vytvořit novou zakázku</a>
+    }
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.CisloZakazky)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Zakaznik.Nazev)
+            </th>
+@*             <th>
+                @Html.DisplayNameFor(model => model.SmerPrace)
+            </th> *@
+            <th>
+                @Html.DisplayNameFor(model => model.Poznamka)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Color)
             </th>
             <th></th>
         </tr>
@@ -21,16 +41,41 @@
     <tbody>
     @foreach (var item in Model)
     {
+        
         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CisloZakazky)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @Html.DisplayFor(modelItem => item.Zakaznik.Nazev)
+            </td>
+@*             <td>
+                @Html.DisplayFor(modelItem => item.SmerPrace)
+            </td> *@
+            <td>
+                @Html.DisplayFor(modelItem => item.Poznamka)
+            </td>
+            @* <td class="barva_zakazky"> *@
+            <td style="background-color: @Html.DisplayFor(modelItem => item.Color);">
+                    @Html.DisplayFor(modelItem => item.Color)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">Upravit</a> |
+                <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id">Detail</a> |
+                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Smazat</a>
             </td>
         </tr>
     }
     </tbody>
 </table>
+
+<div>
+    <a class="btn btn-primary" asp-controller="StrojCalendar" asp-action="StrojManagerOverview">Zpět na přehled kalendáře</a>
+</div>
+
+@section Scripts {
+    <script src="~/js/CalendarOverviewMargin.js"></script>
+}
