@@ -87,7 +87,7 @@ namespace VacationPlannerWeb.Controllers
 
         [Authorize(Roles = "Admin")]
 
-        public async Task<IActionResult> IndexViewModel(bool showHidden = false)
+/*         public async Task<IActionResult> IndexViewModel(bool showHidden = false)
         {
             ViewBag.Message = "Welcome to my demo!";
             RoleViewModel mymodel = new RoleViewModel();
@@ -99,7 +99,7 @@ namespace VacationPlannerWeb.Controllers
 
             //return View(allRoles);
             return View(mymodel);
-        }
+        } */
 
         public IActionResult Create()
         {
