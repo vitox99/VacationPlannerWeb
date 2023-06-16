@@ -61,11 +61,11 @@ else {var role = "cteni";} *@
             {
                 if (day.IsToday)
                 {
-                    <th style="text-align: center; color: rgb(0, 0, 255); font-weight: bold;">@day.Date.ToString("dd")</th>
+                    <th style="text-align: center; color: rgb(0, 0, 255); font-weight: bold;">@day.Date.ToString("dd.MM.")</th>
                 }
                 else
                 {
-                    <th style="text-align: center">@day.Date.ToString("dd")</th>
+                    <th style="text-align: center">@day.Date.ToString("dd.MM.")</th>
                 }
             }
         </tr>
