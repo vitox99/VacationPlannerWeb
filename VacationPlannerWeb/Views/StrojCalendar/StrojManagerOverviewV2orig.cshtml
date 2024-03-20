@@ -1,0 +1,386 @@
+﻿@inject RolesService RolesService
+@model StrojCalendarOverviewViewModel
+
+@{
+    ViewData["Title"] = "Manager Overview";
+}
+
+@functions{
+    public bool IsNewWeekColumn(int columnNumber)
+    {
+        return ((columnNumber + 1) % 7 == 0);
+    }
+}
+
+<h3>Kalendář strojů</h3>
+
+@await Html.PartialAsync("_UserFilterPartial_StrojV2", Model)
+
+@await Html.PartialAsync("_WeekPaginationPartial_StrojV2", Model, ViewData)
+
+    <div class="">
+        <table class="table calendar-overview-table table-sm table-hover">
+            <thead>
+                <tr>
+                    
+                    <th>Týden</th>
+                    <th></th>
+                    <th></th>
+
+                    @for (int i = 0; i <= Model.CalendarDaysList.Count; i++)
+                    {
+                        if (IsNewWeekColumn(i))
+                        {
+                            <th class="calendar-box" colspan="7" style="text-align: center">@Model.CalendarDaysList[i].WeekNumber</th>
+                        }
+                    }
+                </tr>
+                <tr>
+                    <th>
+                        <a class="text-primary text-decoration-none" asp-action="StrojManagerOverviewV2" asp-route-sortOrder="@ViewData["NameSortParm"]"
+                        asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber">Stroj</a>
+                    </th>
+                    @*<th>
+                        <a asp-action="ManagerOverview" asp-route-sortOrder="@ViewData["RoleSortParam"]"
+                        asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber"><b>Role</b></a>
+                    </th> *@
+                    <th>
+                        <a class="text-primary text-decoration-none" asp-action="StrojManagerOverviewV2" asp-route-sortOrder="@ViewData["DepartmentSortParam"]"
+                        asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber">Oddělení</a>
+                    </th>
+                    <th>
+                        <a class="text-primary text-decoration-none" asp-action="StrojManagerOverviewV2" asp-route-sortOrder="@ViewData["TeamSortParam"]"
+                        asp-route-year="@Model.Year" asp-route-weeknumber="@Model.WeekNumber">Skupina strojů</a>
+                    </th>
+                    @foreach (var day in Model.CalendarDaysList)
+                    {
+                        if (day.IsToday)
+                        {
+                            <th style="text-align: center; color: rgb(0, 0, 255); font-weight: bold;">@day.Date.ToString("dd.MM.")</th>
+                        }
+                        else
+                        {
+                            <th style="text-align: center">@day.Date.ToString("dd.MM.")</th>
+                        }
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @{ var count = 0; }
+                @foreach (var user in Model.AllUsersCalendarData.Keys)
+                {
+                    //background-color: #f1f1f1;
+                    //var cls1 = (count % 2 != 0) ? "table-row-gray " : "";
+                    //var cls1 = (count % 2 != 0) ? "grey " : "";
+                    var sedyRadek = (count % 2 != 0) ? "tabulka-radek-sedy" : "";
+                    var barvaStroje = sedyRadek;
+                    @if(user.StrojColor == "#ffffff"){barvaStroje = "#f1f1f1";}
+                    else {barvaStroje = user.StrojColor;}
+                    
+                    <tr>
+                        @* <td id="@sedyRadek"> *@
+                        <td id="@barvaStroje" style="background-color: @barvaStroje">
+                            <b>@user.Name</b><br>
+                            @if(user.StrojMistr == null)
+                            {<p>nepřiřazen</p>}
+                            else {@user.StrojMistr.Name @user.StrojMistr.LastName}
+                        </td>
+
+                        @* <td class="@cls1">
+                            @{ var userRoles = await RolesService.GetRolesShorteningsAsync(user.Id); }
+                            <b>@string.Join(",", userRoles)</b>
+                        </td> *@
+
+                        <td title="@user.Department?.Name" id="@sedyRadek">
+                            <b>@user.Department?.Shortening</b>
+                        </td>
+                        <td title="@user.Team?.Name" id="@sedyRadek">
+                            <b>@user.Team?.Shortening</b>
+                        </td>
+                        @foreach (var calday in Model.AllUsersCalendarData[user])
+                        {
+                            var prazdnyDen = "";
+                            var cls2 = "calendar-box ";
+                            var action = "";
+                            var barva = "white";
+                            var smerPrace = "dopředu";
+                            var nazevZakazky = "nazev zakazky";
+                            var strojnik = "strojnik";
+                            var poznamka1 = "---";
+                            var poznamka2 = "---";
+                            var poznamka3 = "---";
+                            var poznamka4 = "---";
+                            var poznamka5 = "---";
+                            var poznamka6 = "---";
+                            var poznamka7 = "---";
+                            var poznamka8 = "---";
+                            int IdPoznamky = 0;
+                            string DatumStr = null;
+                            var weeknumber = 0;
+                            var year = 0;
+                            var strojDayId = 0;
+                            //var barva = (Model.AbsenceTypesBarva == calday.AbsenceType);
+                            //var barva = calday.AbsenceType == AbsenceType.Equals()
+                            //calday.AbsenceType;
+                            if (calday.IsToday)
+                            {
+                                cls2 += "today ";
+                            }
+                            
+                            if (calday.IsWeekend)
+                            {
+                                prazdnyDen = "weekend";
+                            }
+                            else prazdnyDen = sedyRadek;
+                            
+                            if (calday.IsHoliday)
+                            {
+                                cls2 += "holiday ";
+                            }
+                            @* if (Model.AbsenceTypes != null)
+                            {
+                                for (int i = 0; i < Model.AbsenceTypes.Count; i++)
+                                {
+                                    cls2 += (Model.AbsenceTypes[i] == calday.AbsenceType) ? $"absence-color-{i} " : "";
+                                    cls2 += (Model.AbsenceTypes[i] == calday.AbsenceType) ? $"absence-color-{i} " : "";
+                                }
+                            }  *@
+                            if (Model.AbsenceTypes != null)
+                            {
+                                barva = calday.AbsenceColor;
+                                smerPrace = calday.AbsenceSmer;
+                                nazevZakazky = calday.AbsenceType;
+                                strojnik = calday.AbsenceStrojnik;
+                                poznamka1 = calday.Poznamka1;
+                                poznamka2 = calday.Poznamka2;
+                                poznamka3 = calday.Poznamka3;
+                                poznamka4 = calday.Poznamka4;
+                                poznamka5 = calday.Poznamka5;
+                                poznamka6 = calday.Poznamka6;
+                                poznamka7 = calday.Poznamka7;
+                                poznamka8 = calday.Poznamka8;
+                                if(poznamka1 == null){poznamka1 = "---";}
+                                if(poznamka2 == null){poznamka2 = "---";}
+                                if(poznamka3 == null){poznamka3 = "---";}
+                                if(poznamka4 == null){poznamka4 = "---";}
+                                if(poznamka5 == null){poznamka5 = "---";}
+                                if(poznamka6 == null){poznamka6 = "---";}
+                                if(poznamka7 == null){poznamka7 = "---";}
+                                if(poznamka8 == null){poznamka8 = "---";}
+                                strojDayId = calday.StrojDayId;
+                                
+                                IdPoznamky = calday.StrojBookingId;
+                                DatumStr = calday.Date.ToString("yyyy-MM-dd");
+                                weeknumber = Model.WeekNumber;
+                                year = Model.Year;
+                            //nazevZakazky = "";
+                            } 
+                            if (calday.IsPlannedVacation)
+                            {
+                                cls2 += "planned-vacation ";
+                            }
+                            if (calday.IsStartOfWeek)
+                            {
+                                cls2 += "start-week ";
+                            }
+                            action = (calday.StrojBookingId == 0) ? "" : "Edit";
+                            //cls2 += cls1;
+                            
+                            //cls2 += barva;
+
+                            @*if (calday.IsHoliday)
+                            {
+                                <td class="@cls2" style="background-color: @barva;">
+                                    <a class="btn btn-block btn-sm" asp-controller="WorkFreeDays" asp-action="DetailsByDate" asp-route-date="@calday.Date">
+                                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                                    </a>
+                                </td>
+                            } *@
+                            if (action == "Edit")
+                            {
+                                <td id="calendar-box-vma" class="@cls2" style="background-color: @barva;">
+                                    @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer") || User.IsInRole("Reader")){
+                                    @*<div class="hover-text"> *@
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-3 nopadding">
+                                                    <div class="fw-bold">
+                                                        @poznamka1
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 nopadding">
+                                                    <div class="hover-text fw-bold">
+                                                        @poznamka2
+                                                        <span class="tooltip-text" id="delay">
+                                                            <div class="container">
+                                                                <form asp-controller="StrojDays" asp-action="EditP1" asp-route-id=@IdPoznamky>
+                                                                    <input type="hidden" asp-for="StrojDay.Id" value=@IdPoznamky/>
+                                                                    @* <input asp-for="StrojDay.VacationDate" value=@DatumStr/> *@
+                                                                    <input type="hidden" asp-for="WeekNumber" name="weeknumber" value=@weeknumber/>
+                                                                    <input type="hidden" asp-for="Year" name="year" value=@year/>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <input class="form-control" asp-for="StrojDay.VacationDate" value=@DatumStr disabled/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>                                                                    
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P1" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P1" value=@poznamka1/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P2" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P2" value=@poznamka2/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P3" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P3" value=@poznamka3/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P4" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P4" value=@poznamka4/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P5" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P5" value=@poznamka5/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P6" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P6" value=@poznamka6/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P7" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P7" value=@poznamka7/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-12 nopadding">
+                                                                            <div class="form-group">
+                                                                                <div class="text-start">
+                                                                                    <label asp-for="StrojDay.P8" class="control-label"></label>
+                                                                                </div>
+                                                                                <input class="form-control" asp-for="StrojDay.P8" value=@poznamka8/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer"))
+                                                                    {
+                                                                        <button type="submit" class="btn btn-primary">Uložit</button>
+                                                                    }
+                                                                    
+                                                                </form>                                                        
+                                                            </div>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 nopadding fw-bold">@poznamka3</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12 nopadding">
+                                                    @* <a asp-controller="StrojBookings" asp-action="Edit" asp-route-id="@calday.StrojBookingId"> @poznamka4</a> *@
+                                                    <form asp-controller="StrojBookings" asp-action="Edit">
+                                                        @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer"))
+                                                        {
+                                                            <a type="submit" asp-controller="StrojBookings" asp-action="Edit" asp-route-id="@calday.StrojBookingId" asp-route-StrojDayId = "@calday.StrojDayId"> @poznamka4</a>
+                                                        }
+                                                        else 
+                                                        {
+                                                            <a type="submit" asp-controller="StrojBookings" asp-action="Details" asp-route-id="@calday.StrojBookingId" asp-route-StrojDayId = "@calday.StrojDayId"> @poznamka4</a>
+                                                        }
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12 nopadding fw-bold">@poznamka5</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-3 nopadding fw-bold">@poznamka6</div>
+                                                <div class="col-3 nopadding fw-bold">@poznamka7</div>
+                                                <div class="col-6 nopadding fw-bold">@poznamka8</div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else {
+                                        <a id="calendar-box-button-vma" title="@nazevZakazky" class="btn btn-block"
+                                            asp-controller="StrojBookings" asp-action="Details" 
+                                            asp-route-id="@calday.StrojBookingId">
+                                            @smerPrace
+                                        </a>
+                                    }
+                                </td>
+                            }
+                            else if (action == "")
+                            {
+                                <td id="@prazdnyDen" class="@cls2">
+                                    @if(User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Writer")){
+                                    <a class="btn btn-block btn-sm" asp-controller="StrojBookings" asp-action="Create" 
+                                    asp-route-date="@calday.Date" asp-route-id="@user.Id">-</a>}
+                                    else {<a class="btn btn-block btn-sm">-</a>}
+                                </td>
+                            }
+                        }
+                    </tr>
+                    count++;
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+
+@section Scripts {
+    <script src="~/js/UserRoleFilter.js"></script>
+    <script src="~/js/CalendarOverviewMargin.js"></script>
+}

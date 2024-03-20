@@ -49,6 +49,7 @@
 
 #calendar-box-vma {
     max-width: 100px;
+    min-width: 100px;
     padding: 2px;
 }
 
@@ -57,7 +58,7 @@
     flex-wrap: wrap;
     font-size: 12px;
     line-height: 1.5;
-    border-radius: 3px;
+    /* border-radius: 3px; */
     display: flex;
     flex-wrap: wrap;
     cursor: pointer;
@@ -67,8 +68,7 @@
     text-decoration: none;
     /* background-color: lightblue; */
     text-align: center;
-    border-radius: 5px;
-    border-bottom: solid 1px;
+
 
 }
 
@@ -164,9 +164,9 @@ dl {
     font-weight: bold;
 }
 /*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
-section {
-    height: 100vh;
-  }
+/* section {
+    height: 1vh;
+  } */
   
   /* NAVIGATION */
   nav {
@@ -262,13 +262,15 @@ nav.shift ul li a {
   .tooltip-text {
     visibility: hidden;
     position: absolute;
+
     z-index: 1;
-    width: 200px;
+    width: 250px;
     color: white;
     font-size: 12px;
     background-color: #192733;
     border-radius: 10px;
     padding: 2px 2px 2px 2px;
+    margin: -200px 0 0 0;
     text-align: start;
   }
 
@@ -295,13 +297,13 @@ nav.shift ul li a {
     left: -2%;
   }
   
-  .hover-text {
-/*     position: relative;
+/*  .hover-text {
+     position: relative;
     display: inline-block;
     margin: 40px;
     font-family: Arial;
-    text-align: center; */
-  }
+    text-align: center; 
+  }*/
 
 /*   #fade {
     opacity: 0;
@@ -318,4 +320,41 @@ nav.shift ul li a {
   .hover-text:hover #delay { 
     opacity: 0.9;
  }
+
+ .click{
+  background-color: #91640F;
+  height: 100%;
+  width: 100%;
+ }
 /* toolptip end */  
+
+.nopadding {
+  padding: 0 !important;
+  margin: 0 !important;
+  text-align: center;
+}
+
+/* scrollbar start */
+
+section {
+  position: relative;
+  padding-top: 45px;
+  width:100%;
+  margin-bottom: 30px;
+  }
+
+.containerTab {
+  overflow-y: auto;
+  height: 900px;
+  }
+
+
+/*   table {
+  
+    width:100%;
+    }  */
+
+
+/*   *:hover { 
+    outline:1px blue solid;
+  } */

@@ -1,87 +1,229 @@
-﻿@model StrojBooking
+﻿@model StrojBookingViewModel
 
 @{
     ViewData["Title"] = "Edit";
 }
+<div class="container">
+    <h2>Edit</h2>
 
-<h2>Edit</h2>
+    <h4>Události v kalendáři</h4>
+    <hr />
 
-<h4>Události v kalendáři</h4>
-<hr />
-<div class="row">
-    <div class="col-md-5">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="UserId" />
-            <div class="form-group">
-                <label asp-for="Stroj" class="control-label"></label>
-                <select asp-for="StrojId" class="form-control" asp-items="ViewBag.StrojTypes"></select>
-                <span asp-validation-for="StrojId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FromDate" class="control-label"></label>
-                <input asp-for="FromDate" class="form-control" onchange="FromDateValidation()" />
-                <span asp-validation-for="FromDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ToDate" class="control-label"></label>
-                <input asp-for="ToDate" class="form-control" onchange="ToDateValidation()" />
-                <span asp-validation-for="ToDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AbsenceType" class="control-label"></label>
-                <select asp-for="AbsenceTypeId" class="form-control" asp-items="ViewBag.AbsenceTypes"></select>
-                <span asp-validation-for="AbsenceTypeId" class="text-danger"></span>
-            </div>
-@*             <div class="form-group">
-                <label asp-for="Approval" class="control-label"></label>
-                <select asp-for="Approval" class="form-control" asp-items="ViewBag.ApprovalStates"></select>
-                <span asp-validation-for="Approval" class="text-danger"></span>
-            </div> *@
-            <div class="form-group">
-                <label asp-for="SmerPrace" class="control-label"></label>
-                <input asp-for="SmerPrace" class="form-control" />
-                <span asp-validation-for="SmerPrace" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StrojMistr" class="control-label"></label>
-                <select asp-for="StrojMistrId" class="form-control" asp-items="ViewBag.StrojMistrTypes"></select>
-                <span asp-validation-for="StrojMistrId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label"></label>
-                <input asp-for="Comment" class="form-control" />
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            <br>
-            <div class="form-group">
-                <input type="submit" value="Uložit" class="btn btn-primary" disabled="@ViewBag.NotEditable"/>
-                <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id">Smazat</a>
-                @if (ViewBag.NotEditable)
-                {
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="StrojBooking.Id" />
+                <input type="hidden" asp-for="StrojBooking.UserId" />
+                <div class="form-group">
+                    <label asp-for="StrojBooking.Stroj" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.StrojId" class="form-control" asp-items="ViewBag.StrojTypes"></select>
+                    <span asp-validation-for="StrojBooking.StrojId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.FromDate" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.FromDate" class="form-control" onchange="FromDateValidation()" />
+                    <span asp-validation-for="StrojBooking.FromDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.ToDate" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.ToDate" class="form-control" onchange="ToDateValidation()" />
+                    <span asp-validation-for="StrojBooking.ToDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.AbsenceType" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.AbsenceTypeId" class="form-control"
+                        asp-items="ViewBag.AbsenceTypes"></select>
+                    <span asp-validation-for="StrojBooking.AbsenceTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.SmerPrace" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.SmerPrace" class="form-control" />
+                    <span asp-validation-for="StrojBooking.SmerPrace" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.StrojMistr" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.StrojMistrId" class="form-control"
+                        asp-items="ViewBag.StrojMistrTypes"></select>
+                    <span asp-validation-for="StrojBooking.StrojMistrId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.Comment" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.Comment" class="form-control" />
+                    <span asp-validation-for="StrojBooking.Comment" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="container">
+                        <div class="row" style="height: 50px;"></div>
+                        <div class="row">
+                            <h3>Detaily</h3>
+                            <hr />
+                            <input asp-for="StrojDay.Id" hidden />
+                            <input asp-for="StrojDay.VacationDate" hidden />
+                            <input asp-for="StrojDay.StrojBookingId" hidden />
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P1" class="control-label fw-bold"></label>
+                                    @* <input name="P1" class="form-control" value="@Model.StrojDay.P1"/> *@
+                                    <input asp-for="StrojDay.P1" class="form-control" />
+                                    @* <input name="P1" class="form-control" value="@Model.P1"/> *@
+
+                                </div>
+                            </div>
+                            <div class="col-6 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P2" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P2" class="form-control" />
+                                    @* <input name="P2" class="form-control" /> *@
+                                </div>
+                            </div>
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P3" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P3" class="form-control" />
+                                    @* <input name="P3" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P4" class="control-label fw-bold"></label>
+                                    <textarea asp-for="StrojDay.P4" class="form-control" rows="4"></textarea>
+                                    @* <input name="P4" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P5" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P5" class="form-control" />
+                                    @* <input name="P5" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P6" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P6" class="form-control" />
+                                    @* <input name="P6" class="form-control" /> *@
+                                </div>
+                            </div>
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P7" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P7" class="form-control" />
+                                    @* <input name="P7" class="form-control" /> *@
+                                </div>
+                            </div>
+                            <div class="col-6 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P8" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P8" class="form-control" />
+                                    @* <input name="P8" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+                <div class="form-group">
+
+                    <div class="d-flex mb-3">
+                        <div class="p-2">
+                            <input type="submit" value="Uložit" class="btn btn-primary box-shadow"
+                                disabled="@ViewBag.NotEditable" />
+                        </div>
+                        <div class="p-2">
+                            <a class="btn btn-danger" asp-action="Delete"
+                                asp-route-id="@Model.StrojBooking.Id">Smazat</a>
+                        </div>
+                        <div class="ms-auto p-2">
+                        <!-- Button trigger modal -->
+                            <div class="row m-1 justify-content-start">
+                                <button type="button" class="btn btn-secondary box-shadow"
+                                    data-id="@Model.StrojBooking.Id" data-bs-toggle="modal"
+                                    data-bs-target="#kopieModal">
+                                    Kopírovat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* @if (ViewBag.NotEditable)
+                    {
                     <label>@ViewBag.NotEditableMessage</label>
-                }
-            </div>
-            <br>
-            <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
-            <a class="btn btn-info" asp-controller="StrojCalendar" asp-action="StrojManagerOverview">Zpět na kalendář</a>
-        </form>
+                    } *@
+
+@*                     <!-- Button trigger modal -->
+                    <div class="row m-1 justify-content-start">
+                        <button type="button" class="btn btn-secondary btn-sm box-shadow"
+                            data-id="@Model.StrojBooking.Id" data-bs-toggle="modal" data-bs-target="#kopieModal">
+                            Kopírovat
+                        </button>
+                    </div> *@
+                    <!-- Modal -->
+                    <div class="modal fade" id="kopieModal" tabindex="-1" aria-labelledby="kopieModalLabel"
+                        aria-hidden="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="kopieModalLabel">Kopírování události v kalendáři
+                                    </h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form asp-page-handler="KopieKalendare" style="display:inline;">
+                                    <div class="modal-body">
+                                        <input type="text" name="id" id="Id" value="@Model.StrojBooking.Id" hidden />
+                                        <input type="text" name="strojDayId" value="@Model.StrojDay.Id" hidden />
+
+                                        <label asp-for="@Model.KopieDest" class="control-label"></label>
+                                        <select asp-for="KopieDest" class="form-control"
+                                            asp-items="ViewBag.StrojTypes"></select>
+                                        @* <input name="kopieDest" class="form-control" /> *@
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Zpět</button>
+                                        <input type="submit" asp-action="KopieKalendare" value="Uložit"
+                                            class="btn btn-primary" />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-danger">
+                        @ViewBag.shodaStroju
+                        @ViewBag.kolizeTerminu
+                    </div>
+                </div>
+                <br>
+                <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+                <a class="btn btn-info" asp-controller="StrojCalendar" asp-action="StrojManagerOverviewV2">Zpět na
+                    kalendář</a>
+            </form>
+        </div>
     </div>
 </div>
 
-
 @* <div>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        
-        <a class="btn btn-default btn-sm" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+<form asp-action="Delete">
+<input type="hidden" asp-for="Id" />
+<input type="submit" value="Delete" class="btn btn-danger" /> |
 
-    </form>
+<a class="btn btn-default btn-sm" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+
+</form>
 </div>
- *@
+*@
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script src="~/js/DatePickerLogic.js"></script>
 }

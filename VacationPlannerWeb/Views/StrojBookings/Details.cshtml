@@ -1,83 +1,157 @@
-﻿@model StrojBooking
+﻿@model StrojBookingViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Edit";
 }
+<div class="container">
+    <h2>Detaily</h2>
 
-<h2>Detail</h2>
-
-<div>
     <h4>Události v kalendáři</h4>
     <hr />
-    <dl class="dl-horizontal">
-        
-        <dt>
-            @Html.DisplayNameFor(model => model.Stroj)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Stroj.Name)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.FromDate)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.FromDate)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.ToDate)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.ToDate)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.AbsenceType)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.AbsenceType.Name)
-        </dd>
-@*         <dt>
-            @Html.DisplayNameFor(model => model.Approval)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Approval)
-        </dd> *@
-        <dt>
-            @Html.DisplayNameFor(model => model.SmerPrace)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.SmerPrace)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.StrojMistr)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.StrojMistr.Alias)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Comment)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Comment)
-        </dd>
-        <dt>
-            Počet dnů v kalendáři
-        </dt>
-        <dd>
-            @Model.VacationDays.Count
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.VacationDays)
-        </dt>
-        @foreach (var item in Model.VacationDays)
-        {
-            <dd>
-                @item.VacationDate.ToString("yyyy-MM-dd")
-            </dd>
-        }
-    </dl>
+
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="StrojBooking.Id" />
+                <input type="hidden" asp-for="StrojBooking.UserId" />
+                <div class="form-group">
+                    <label asp-for="StrojBooking.Stroj" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.StrojId" class="form-control" asp-items="ViewBag.StrojTypes"></select>
+                    <span asp-validation-for="StrojBooking.StrojId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.FromDate" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.FromDate" class="form-control" onchange="FromDateValidation()" />
+                    <span asp-validation-for="StrojBooking.FromDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.ToDate" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.ToDate" class="form-control" onchange="ToDateValidation()" />
+                    <span asp-validation-for="StrojBooking.ToDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.AbsenceType" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.AbsenceTypeId" class="form-control"
+                        asp-items="ViewBag.AbsenceTypes"></select>
+                    <span asp-validation-for="StrojBooking.AbsenceTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.SmerPrace" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.SmerPrace" class="form-control" />
+                    <span asp-validation-for="StrojBooking.SmerPrace" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.StrojMistr" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.StrojMistrId" class="form-control"
+                        asp-items="ViewBag.StrojMistrTypes"></select>
+                    <span asp-validation-for="StrojBooking.StrojMistrId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.Comment" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.Comment" class="form-control" />
+                    <span asp-validation-for="StrojBooking.Comment" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="container">
+                        <div class="row" style="height: 50px;"></div>
+                        <div class="row">
+                            <h3>Detaily</h3>
+                            <hr />
+                            <input asp-for="StrojDay.Id" hidden />
+                            <input asp-for="StrojDay.VacationDate" hidden />
+                            <input asp-for="StrojDay.StrojBookingId" hidden />
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P1" class="control-label fw-bold"></label>
+                                    @* <input name="P1" class="form-control" value="@Model.StrojDay.P1"/> *@
+                                    <input asp-for="StrojDay.P1" class="form-control" />
+                                    @* <input name="P1" class="form-control" value="@Model.P1"/> *@
+
+                                </div>
+                            </div>
+                            <div class="col-6 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P2" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P2" class="form-control" />
+                                    @* <input name="P2" class="form-control" /> *@
+                                </div>
+                            </div>
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P3" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P3" class="form-control" />
+                                    @* <input name="P3" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P4" class="control-label fw-bold"></label>
+                                    <textarea asp-for="StrojDay.P4" class="form-control" rows="4"></textarea>
+                                    @* <input name="P4" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P5" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P5" class="form-control" />
+                                    @* <input name="P5" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P6" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P6" class="form-control" />
+                                    @* <input name="P6" class="form-control" /> *@
+                                </div>
+                            </div>
+                            <div class="col-3 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P7" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P7" class="form-control" />
+                                    @* <input name="P7" class="form-control" /> *@
+                                </div>
+                            </div>
+                            <div class="col-6 nopadding">
+                                <div class="form-group">
+                                    <label asp-for="StrojDay.P8" class="control-label fw-bold"></label>
+                                    <input asp-for="StrojDay.P8" class="form-control" />
+                                    @* <input name="P8" class="form-control" /> *@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+                <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+                <a class="btn btn-info" asp-controller="StrojCalendar" asp-action="StrojManagerOverviewV2">Zpět na
+                    kalendář</a>
+            </form>
+        </div>
+    </div>
 </div>
-<div>
-    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Upravit</a> |
-    <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
-    @* <a class="btn btn-default" asp-controller="Calendar" asp-action="MyCalendar">Back to My Calendar</a> *@
+
+@* <div>
+<form asp-action="Delete">
+<input type="hidden" asp-for="Id" />
+<input type="submit" value="Delete" class="btn btn-danger" /> |
+
+<a class="btn btn-default btn-sm" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+
+</form>
 </div>
+*@
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/DatePickerLogic.js"></script>
+}

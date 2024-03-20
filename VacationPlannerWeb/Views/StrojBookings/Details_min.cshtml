@@ -1,0 +1,80 @@
+﻿@model StrojBookingViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+<div class="container">
+    <h2>Detaily</h2>
+
+    <h4>Události v kalendáři</h4>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="StrojBooking.Id" />
+                <input type="hidden" asp-for="StrojBooking.UserId" />
+                <div class="form-group">
+                    <label asp-for="StrojBooking.Stroj" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.StrojId" class="form-control" asp-items="ViewBag.StrojTypes"></select>
+                    <span asp-validation-for="StrojBooking.StrojId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.FromDate" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.FromDate" class="form-control" onchange="FromDateValidation()" />
+                    <span asp-validation-for="StrojBooking.FromDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.ToDate" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.ToDate" class="form-control" onchange="ToDateValidation()" />
+                    <span asp-validation-for="StrojBooking.ToDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.AbsenceType" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.AbsenceTypeId" class="form-control"
+                        asp-items="ViewBag.AbsenceTypes"></select>
+                    <span asp-validation-for="StrojBooking.AbsenceTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.SmerPrace" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.SmerPrace" class="form-control" />
+                    <span asp-validation-for="StrojBooking.SmerPrace" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.StrojMistr" class="control-label fw-bold"></label>
+                    <select asp-for="StrojBooking.StrojMistrId" class="form-control"
+                        asp-items="ViewBag.StrojMistrTypes"></select>
+                    <span asp-validation-for="StrojBooking.StrojMistrId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StrojBooking.Comment" class="control-label fw-bold"></label>
+                    <input asp-for="StrojBooking.Comment" class="form-control" />
+                    <span asp-validation-for="StrojBooking.Comment" class="text-danger"></span>
+                </div>
+
+                <br>
+                <a class="btn btn-info" asp-action="Index">Zpět na přehled</a>
+                <a class="btn btn-info" asp-controller="StrojCalendar" asp-action="StrojManagerOverviewV2">Zpět na
+                    kalendář</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* <div>
+<form asp-action="Delete">
+<input type="hidden" asp-for="Id" />
+<input type="submit" value="Delete" class="btn btn-danger" /> |
+
+<a class="btn btn-default btn-sm" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+
+</form>
+</div>
+*@
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/DatePickerLogic.js"></script>
+}

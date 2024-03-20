@@ -1,0 +1,43 @@
+13.11.23
+- úprava zarovnání čísel týdnů nad datumy v přehledu kalendáře
+- snížení počtu týdnů na 3 v přehledu kalendáře a změna proměnné, která to řídí na globální (amountOfWeeks)
+
+14.11.23
+- úprava labelů P1 až P8
+- úprava rozložení kontextové nabídky editace položky v kalendáři - položky pod sebou
+
+16.11.23
+-implementace kopírování událostí v kalendáři
+
+20.11.2023
+- úprava editace záznamů ve formuláři Edit (doplnění možnosti změny Detailů i v tomto formuláři)
+- úprava formuláře Edit - zarovnání tlačítek, tučné písmo, layout formuláře
+- změna návratové obrazovky po uložení formuláře Edit (StrojCalendar)
+
+22.11.2023
+- úprava kalendáře - fixní záhlaví tabulky - nedokončeno (koliduje s popup oknem s detaily dne)
+- úprava formuláře Detail
+    - úprava layoutu podle form. Create/Edit
+    - zamezení editace od skupiny Reader
+    - změna pole P4 (Info o výluce) na textarea
+- vytvoření formuláře Detail_min bez polí P1 - P8 pro přístup na tento formulář ze StrojBookings/Index (bez udání konkrétního dne)
+
+23.11.2023
+- redukce zobrazovaných informací na úvodní obrazovce
+- úprava odkazů z úvodní obrazovky na detaily
+
+24.11.2023
+- úprava modelu StrojCalendarDay - přidání názvu zakázky
+- úprava metody GetCalendarDay v kontroleru StrojCalendarController - přidání názvu zakázky
+- úprava layoutu v buňkách kalendáře
+    1.	Místo
+    2.	Vedoucí práce
+    3.	Směr práce
+    4.	Číslo zakázky ( pokud je vyplněno )
+
+    - nastavení okna s podrobnostmi na pole Místo (poznamka1)
+    - nastavení odkazu na kompletní detail na pole Název zakázky (absenceNazev)
+
+28.11.2023
+- změna sloupce Skupina strojů v kalendáři - Shortening na Name
+- oprava filtrování v kalendáři - načítání scriptů v StrojManagerOverViewV2.cshtml

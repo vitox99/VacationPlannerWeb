@@ -26,5 +26,8 @@ namespace VacationPlannerWeb.ViewModels
         public string TeamFilterString { get; set; }
         public string PostBackActionName { get; set; }
         public string Barva {get; set;}
+        public StrojDay StrojDay {get; set;}
+/*         public string Poznamka1 {get; set;}
+        public int IdP1 {get;set;} */
     }
 }

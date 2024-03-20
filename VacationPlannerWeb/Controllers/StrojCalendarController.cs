@@ -12,6 +12,22 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using VacationPlannerWeb.Extensions;
+using System.Data;
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using VacationPlannerWeb.ViewModels;
+using VacationPlannerWeb.DataAccess;
+using VacationPlannerWeb.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using VacationPlannerWeb.TagHelpers;
+
 
 namespace VacationPlannerWeb.Controllers
 {
@@ -30,6 +46,8 @@ namespace VacationPlannerWeb.Controllers
         private const string NoneStrojnikId = "#None-Strojnik-Id";
         private const string NoneDepartmentId = "#None-Department-Id";
         private const string NoneTeamId = "#None-Team-Id";
+
+        private const int amountOfWeeks = 3;
 
         public StrojCalendarController(AppDbContext context, UserManager<User> userManager)
         {
@@ -62,7 +80,7 @@ namespace VacationPlannerWeb.Controllers
             var weekCalendarDayDic = new Dictionary<int, List<StrojCalendarDay>>();
 
             var displayDatesOfWeek = 7; //Change to 5 to exclude saturdays and sundays
-            const int amountOfWeeks = 6;
+            /* const int amountOfWeeks = 6; */
             const int totalDaysOfWeek = 7;
             for (int w = 0; w < amountOfWeeks; w++)
             {
@@ -144,6 +162,90 @@ namespace VacationPlannerWeb.Controllers
             };
             return View(calendarVM);
         }
+
+
+        //[Authorize(Roles = "Admin,Manager")]
+        [Authorize]
+        public async Task<IActionResult> StrojManagerOverviewV2(int year, int weeknumber, string sortOrder, string? datum)
+        {
+            if(datum is not null)
+            {
+                DateTime _datum = DateTime.ParseExact(datum, "yyyy-MM-dd",
+                                       System.Globalization.CultureInfo.InvariantCulture);
+                year = _datum.Year;
+                weeknumber = GetIso8601WeekOfYear(_datum);
+            }
+            PagingLogicAndValidationForYearAndWeekNumber(ref year, ref weeknumber, _cultureInfo);
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["StrojnikSortParam"] = sortOrder == "strojnik_desc" ? "strojnik_desc" : "strojnik";
+            ViewData["RoleSortParam"] = sortOrder == "role_desc" ? "role_desc" : "role";
+            ViewData["DepartmentSortParam"] = sortOrder == "department_desc" ? "department" : "department_desc";
+            ViewData["TeamSortParam"] = sortOrder == "team_desc" ? "team" : "team_desc";
+
+            var roleFilter = await GetRoleFilterItems();
+            var strojnikFilter = await GetStrojnikFilterItems();
+            var departmentFilter = await GetDepartmentFilterItems();
+            var teamFilter = await GetTeamFilterItems();
+
+            var roleFilterString = HttpContext.Session.GetString(SessionKeyRoleFilter);
+            var strojnikFilterString = HttpContext.Session.GetString(SessionKeyStrojnikFilter);
+            var departmentFilterString = HttpContext.Session.GetString(SessionKeyDepartmentFilter);
+            var teamFilterString = HttpContext.Session.GetString(SessionKeyTeamsFilter);
+
+            var strojList = await GetAllStrojsWithRoles();
+            strojList = FilterStrojList(roleFilter, strojnikFilter, departmentFilter, teamFilter, strojList);
+            var sortedUsersList = GetSortedStrojList(sortOrder, strojList);
+
+            var absenceTypesList = await _context.AbsenceTypes.Select(x => x.Name).ToListAsync();
+            var absenceTypesListBarva = await _context.AbsenceTypes.ToListAsync();
+            var workFreeDaysList = await _context.WorkFreeDays.ToListAsync();
+
+            DateTime currentFirstDayInWeek = CalendarHelper.FirstDateOfWeekISO8601(year, weeknumber, _cultureInfo);
+            var userCalendarDayDic = await GetStrojCalendarDayDictionary(sortedUsersList, workFreeDaysList, currentFirstDayInWeek);
+
+            List<StrojCalendarDay> caldaysList = GetAllCalendarDays(currentFirstDayInWeek);
+
+            var calendarVM = new StrojCalendarOverviewViewModel
+            {
+                Year = year,
+                WeekNumber = weeknumber,
+                Date = currentFirstDayInWeek,
+                AbsenceTypes = absenceTypesList,
+                AbsenceTypesBarva = absenceTypesListBarva,
+                AllUsersCalendarData = userCalendarDayDic,
+                CalendarDaysList = caldaysList,
+                SortOrder = sortOrder,
+                RoleFilter = roleFilter,
+                RoleFilterString = roleFilterString,
+                StrojnikFilter = strojnikFilter,
+                StrojnikFilterString = strojnikFilterString,
+                DepartmentFilter = departmentFilter,
+                DepartmentFilterString = departmentFilterString,
+                TeamFilter = teamFilter,
+                TeamFilterString = teamFilterString,
+                PostBackActionName = nameof(StrojManagerOverviewV2),
+                Barva = "red"
+            };
+            return View(calendarVM);
+        }
+
+public static int GetIso8601WeekOfYear(DateTime time)
+{
+    // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
+    // be the same week# as whatever Thursday, Friday or Saturday are,
+    // and we always get those right
+    DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+    if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+    {
+        time = time.AddDays(3);
+    }
+
+    // Return the week of our adjusted day
+    return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+}
+
 /*
         [Authorize]
         public async Task<IActionResult> UserOverview(int year, int weeknumber, string sortOrder)
@@ -616,7 +718,7 @@ namespace VacationPlannerWeb.Controllers
         private List<StrojCalendarDay> GetAllCalendarDays(DateTime currentFirstDayInWeek)
         {
             var displayDatesOfWeek = 7; //Change to 7 to include saturdays and sundays
-            const int amountOfWeeks = 6;
+            /* const int amountOfWeeks = 4; */
             const int totalDaysOfWeek = 7;
             return Enumerable.Range(0, amountOfWeeks)
                 .SelectMany(num =>
@@ -626,7 +728,7 @@ namespace VacationPlannerWeb.Controllers
 
         private static List<StrojCalendarDay> GetAllCalendarDays(DateTime currentFirstDayInWeek, CalendarDataLists dataLists, int displayDatesOfWeek)
         {
-            const int amountOfWeeks = 6;
+            //const int amountOfWeeks = 4;
             const int totalDaysOfWeek = 7;
             return Enumerable.Range(0, amountOfWeeks)
                 .SelectMany(num =>
@@ -698,20 +800,39 @@ namespace VacationPlannerWeb.Controllers
             string absenceColor = null;
             string absenceSmer = null;
             string absenceStrojnik = null;
-            //string nazevZakazky = null;
+            string absenceNazev = null;
             bool isPlanned = false;
             var vacationBookingId = 0;
             bool isHoliday = false;
             string note = null;
+            string poznamka1 = null;
+            string poznamka2 = null;
+            string poznamka3 = null;
+            string poznamka4 = null;
+            string poznamka5 = null;
+            string poznamka6 = null;
+            string poznamka7 = null;
+            string poznamka8 = null;
+            int strojDayId = 0;
 
             if (dataLists.VacDaysList.Any(v => v.VacationDate == weekDate))
             {
                 var vacBookingId = dataLists.VacDaysList.FirstOrDefault(v => v.VacationDate == weekDate).StrojBookingId;
+                poznamka1 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P1;
+                poznamka2 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P2;
+                poznamka3 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P3;
+                poznamka4 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P4;
+                poznamka5 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P5;
+                poznamka6 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P6;
+                poznamka7 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P7;
+                poznamka8 = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).P8;
+                strojDayId = dataLists.VacDaysList.FirstOrDefault(x => x.VacationDate == weekDate).Id;
+
                 var vacbooking = dataLists.VacBookingList.FirstOrDefault(v => v.Id == vacBookingId);
                 approval = vacbooking.Approval;
                 absenceType = vacbooking.AbsenceType?.Name;
                 absenceColor = vacbooking.AbsenceType?.Color;
-                //nazevZakazky = vacbooking.AbsenceType.
+                absenceNazev = vacbooking.AbsenceType.CisloZakazky;
                 //absenceSmer = vacbooking.AbsenceType?.SmerPrace;
                 absenceSmer = vacbooking.SmerPrace;
                 absenceStrojnik = vacbooking.StrojMistr.Alias;
@@ -732,6 +853,7 @@ namespace VacationPlannerWeb.Controllers
                 AbsenceColor = absenceColor,
                 AbsenceSmer = absenceSmer,
                 AbsenceStrojnik = absenceStrojnik,
+                AbsenceNazev = absenceNazev,
                 IsPlannedVacation = isPlanned,
                 StrojBookingId = vacationBookingId,
                 IsHoliday = isHoliday,
@@ -741,6 +863,17 @@ namespace VacationPlannerWeb.Controllers
                 IsStartOfWeek = (weekDate.DayOfWeek == DayOfWeek.Monday),
                 Date = weekDate,
                 WeekNumber = CalendarHelper.GetISO8601WeekNumber(weekDate, _cultureInfo),
+                Poznamka1 = poznamka1,
+                Poznamka2 = poznamka2,
+                Poznamka3 = poznamka3,
+                Poznamka4 = poznamka4,
+                Poznamka5 = poznamka5,
+                Poznamka6 = poznamka6,
+                Poznamka7 = poznamka7,
+                Poznamka8 = poznamka8,
+                StrojDayId = strojDayId,
+
+
             };
         }
 

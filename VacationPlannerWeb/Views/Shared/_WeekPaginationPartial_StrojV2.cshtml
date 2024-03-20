@@ -1,0 +1,41 @@
+﻿@model StrojCalendarOverviewViewModel
+
+@{
+    var previousWeek = Model.WeekNumber - 1;
+    var nextWeek = Model.WeekNumber + 1;
+}
+
+<div class="pagination-sm" align="center">
+    <h4>
+        <div class="row">
+            <div class="col-3">
+                <form asp-controller="StrojCalendar" asp-action="@Model.PostBackActionName"
+                    asp-route-sortOrder="@ViewData["CurrentSort"]">
+                    <div class="row">
+                        <div class="col-6">
+                            <input type="date" name="datum" class="form-control " />
+                        </div>
+                        <div class="col-6">
+                            <input type="submit" class="btn btn-secondary btn-sm" aria-label="Next"
+                                value="Nastavit datum" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-4">
+                <a class="btn btn-default btn-lg" asp-controller="StrojCalendar" asp-action="@Model.PostBackActionName"
+                    asp-route-year="@Model.Year" asp-route-weeknumber="@previousWeek"
+                    asp-route-sortOrder="@ViewData["CurrentSort"]" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+                Týden @Model.WeekNumber - @Model.Year
+                <a class="btn btn-default btn-lg" asp-controller="StrojCalendar" asp-action="@Model.PostBackActionName"
+                    asp-route-year="@Model.Year" asp-route-weeknumber="@nextWeek"
+                    asp-route-sortOrder="@ViewData["CurrentSort"]" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </div>
+
+        </div>
+    </h4>
+</div>

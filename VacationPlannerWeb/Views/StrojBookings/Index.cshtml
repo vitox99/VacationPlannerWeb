@@ -78,7 +78,7 @@
                 </td>
                 <td>
                     <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">Upravit</a> |
-                    <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.Id">Detail</a> |
+                    <a class="btn btn-info btn-sm" asp-action="Details_min" asp-route-id="@item.Id">Detail</a> |
                     <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Smazat</a>
                 </td>
             </tr>
@@ -87,7 +87,7 @@
 </table>
 
 <div>
-    <a class="btn btn-primary" asp-controller="StrojCalendar" asp-action="StrojManagerOverview">Zpět na přehled kalendáře</a>
+    <a class="btn btn-primary" asp-controller="StrojCalendar" asp-action="StrojManagerOverviewV2">Zpět na přehled kalendáře</a>
 </div>
 
 @section Scripts {

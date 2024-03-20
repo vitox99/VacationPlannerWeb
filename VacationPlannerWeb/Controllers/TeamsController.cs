@@ -55,6 +55,7 @@ namespace VacationPlannerWeb.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            //ModelState.AddModelError("Shortening","chybaxxx");
             return View(team);
         }
 

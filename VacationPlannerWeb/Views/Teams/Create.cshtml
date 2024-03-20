@@ -18,6 +18,11 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Shortening" class="control-label"></label>
+                <input asp-for="Shortening" class="form-control" />
+                <span asp-validation-for="Shortening" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Vytvořit" class="btn btn-primary" />
             </div>
         </form>

@@ -120,7 +120,7 @@ namespace VacationPlannerWeb
                 endpoints.MapControllerRoute(
                 name: "default",
                 //pattern: "{controller=Home}/{action=Index}/{id?}");
-                pattern: "{controller=StrojCalendar}/{action=StrojmanagerOverview}/{id?}");
+                pattern: "{controller=StrojCalendar}/{action=StrojmanagerOverviewV2}/{id?}");
             });
         }
 
